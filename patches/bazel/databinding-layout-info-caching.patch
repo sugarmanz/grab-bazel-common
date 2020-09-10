@@ -1,0 +1,13 @@
+diff --git a/src/tools/android/java/com/google/devtools/build/android/AndroidResourceProcessor.java b/src/tools/android/java/com/google/devtools/build/android/AndroidResourceProcessor.java
+index c23031f6f1..544376fb2b 100644
+--- a/src/tools/android/java/com/google/devtools/build/android/AndroidResourceProcessor.java
++++ b/src/tools/android/java/com/google/devtools/build/android/AndroidResourceProcessor.java
+@@ -434,7 +434,7 @@ public class AndroidResourceProcessor {
+ 
+     ProcessXmlOptions options = new ProcessXmlOptions();
+     options.setAppId(packagePath);
+-    options.setResInput(inputResourcesDir.toFile());
++    options.setResInput(inputResourcesDir.toFile().getAbsoluteFile());
+     options.setResOutput(processedResourceDir.toFile());
+     options.setLayoutInfoOutput(dataBindingInfoOut.toFile());
+     options.setUseAndroidX(useDataBindingAndroidX);

@@ -1,0 +1,13 @@
+diff --git a/src/tools/android/java/com/google/devtools/build/android/AndroidDataBindingProcessingAction.java b/src/tools/android/java/com/google/devtools/build/android/AndroidDataBindingProcessingAction.java
+index 548be4e5bd..a2f7037a7d 100644
+--- a/src/tools/android/java/com/google/devtools/build/android/AndroidDataBindingProcessingAction.java
++++ b/src/tools/android/java/com/google/devtools/build/android/AndroidDataBindingProcessingAction.java
+@@ -150,7 +150,7 @@ public class AndroidDataBindingProcessingAction {
+         while (it.hasNext()) {
+           Path layoutInfo = it.next();
+           ZipEntry zipEntry = new ZipEntry(layoutInfo.getFileName().toString());
++          zipEntry.setTime(AarGeneratorAction.DEFAULT_TIMESTAMP);
+           layoutInfoZip.putNextEntry(zipEntry);
+           Files.copy(layoutInfo, layoutInfoZip);
+           layoutInfoZip.closeEntry();
+-- 

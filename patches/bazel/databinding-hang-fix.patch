@@ -1,0 +1,90 @@
+diff --git a/src/main/java/com/google/devtools/build/lib/rules/android/databinding/DataBindingV2Context.java b/src/main/java/com/google/devtools/build/lib/rules/android/databinding/DataBindingV2Context.java
+index 38a2c5d1ad..b64b3b5a54 100644
+--- a/src/main/java/com/google/devtools/build/lib/rules/android/databinding/DataBindingV2Context.java
++++ b/src/main/java/com/google/devtools/build/lib/rules/android/databinding/DataBindingV2Context.java
+@@ -13,8 +13,6 @@
+ // limitations under the License.
+ package com.google.devtools.build.lib.rules.android.databinding;
+ 
+-import static com.google.common.base.Preconditions.checkArgument;
+-
+ import com.google.common.base.Joiner;
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.ImmutableMultimap;
+@@ -37,12 +35,14 @@ import com.google.devtools.build.lib.rules.java.JavaInfo;
+ import com.google.devtools.build.lib.rules.java.JavaPluginInfoProvider;
+ import com.google.devtools.build.lib.starlarkbuildapi.android.DataBindingV2ProviderApi;
+ import com.google.devtools.build.lib.starlarkbuildapi.android.DataBindingV2ProviderApi.LabelJavaPackagePair;
+-import java.util.Collection;
+-import java.util.List;
++
++import java.util.*;
+ import java.util.Map.Entry;
+-import java.util.Set;
+ import java.util.function.BiConsumer;
+ import java.util.function.Consumer;
++import java.util.stream.Collectors;
++
++import static com.google.common.base.Preconditions.checkArgument;
+ 
+ class DataBindingV2Context implements DataBindingContext {
+ 
+@@ -202,7 +202,7 @@ class DataBindingV2Context implements DataBindingContext {
+   }
+ 
+   private static ImmutableList<Artifact> getTransitiveBRFiles(RuleContext context) {
+-    ImmutableList.Builder<Artifact> brFiles = ImmutableList.builder();
++    List<Artifact> brFiles = new ArrayList();
+     if (context.attributes().has("deps", BuildType.LABEL_LIST)) {
+ 
+       Iterable<DataBindingV2Provider> providers =
+@@ -212,11 +212,14 @@ class DataBindingV2Context implements DataBindingContext {
+         brFiles.addAll(provider.getTransitiveBRFiles().toList());
+       }
+     }
+-    return brFiles.build();
++    return brFiles.stream()
++            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Artifact::getExecPath))))
++            .stream()
++            .collect(ImmutableList.toImmutableList());
+   }
+ 
+   private static List<Artifact> getDirectSetterStoreFiles(RuleContext context) {
+-    ImmutableList.Builder<Artifact> setterStoreFiles = ImmutableList.builder();
++    List<Artifact> setterStoreFiles = new ArrayList<>();
+     if (context.attributes().has("deps", BuildType.LABEL_LIST)) {
+ 
+       Iterable<DataBindingV2Provider> providers =
+@@ -226,7 +229,10 @@ class DataBindingV2Context implements DataBindingContext {
+         setterStoreFiles.addAll(provider.getSetterStores());
+       }
+     }
+-    return setterStoreFiles.build();
++    return setterStoreFiles.stream()
++            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Artifact::getExecPath))))
++            .stream()
++            .collect(ImmutableList.toImmutableList());
+   }
+ 
+   /**
+@@ -321,7 +327,7 @@ class DataBindingV2Context implements DataBindingContext {
+   }
+ 
+   private static List<Artifact> getDirectClassInfo(RuleContext context) {
+-    ImmutableList.Builder<Artifact> classInfoFiles = ImmutableList.builder();
++    List<Artifact> classInfoFiles = new ArrayList<>();
+     if (context.attributes().has("deps", BuildType.LABEL_LIST)) {
+ 
+       Iterable<DataBindingV2Provider> providers =
+@@ -331,7 +337,10 @@ class DataBindingV2Context implements DataBindingContext {
+         classInfoFiles.addAll(provider.getClassInfos());
+       }
+     }
+-    return classInfoFiles.build();
++    return classInfoFiles.stream()
++            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Artifact::getExecPath))))
++            .stream()
++            .collect(ImmutableList.toImmutableList());
+   }
+ 
+   @Override
