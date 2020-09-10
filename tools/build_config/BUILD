@@ -1,0 +1,1 @@
+load(":build_config.bzl", "build_config")
