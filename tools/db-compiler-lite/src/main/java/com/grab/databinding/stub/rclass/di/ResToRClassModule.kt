@@ -1,0 +1,89 @@
+/*
+ * Copyright 2021 Grabtaxi Holdings PTE LTE (GRAB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.grab.databinding.stub.rclass.di
+
+import java.io.File
+import com.grab.databinding.stub.rclass.parser.ResToRParser
+import com.grab.databinding.stub.rclass.parser.ResToRParserImpl
+import com.grab.databinding.stub.rclass.generator.ResToRClassGenerator
+import com.grab.databinding.stub.rclass.generator.ResToRClassGeneratorImpl
+import com.grab.databinding.stub.common.OUTPUT
+
+import com.grab.databinding.stub.rclass.parser.xml.StyleParser
+import com.grab.databinding.stub.rclass.parser.xml.ArrayParser
+import com.grab.databinding.stub.rclass.parser.xml.DefaultXmlParser
+import com.grab.databinding.stub.rclass.parser.xml.IDParser
+import com.grab.databinding.stub.rclass.parser.xml.DeclareStyleableParser
+import com.grab.databinding.stub.rclass.parser.ResourceFileParser
+import com.grab.databinding.stub.rclass.parser.ParserType
+
+import javax.inject.Singleton
+import javax.inject.Named
+import dagger.Module
+import dagger.Provides
+import dagger.multibindings.IntoMap
+import dagger.MapKey
+import dagger.Binds
+
+@MapKey
+annotation class ParserKey(val value: ParserType)
+
+@Module
+interface ParserModule {
+    @Binds
+    @IntoMap
+    @ParserKey(ParserType.STYLE_PARSER)
+    fun StyleParser.styleParser(): ResourceFileParser
+
+    @Binds
+    @IntoMap
+    @ParserKey(ParserType.STYLEABLE_PARSER)
+    fun DeclareStyleableParser.declareStyleableParser(): ResourceFileParser
+
+    @Binds
+    @IntoMap
+    @ParserKey(ParserType.ARRAY_PARSER)
+    fun ArrayParser.arrayParser(): ResourceFileParser
+
+    @Binds
+    @IntoMap
+    @ParserKey(ParserType.ID_PARSER)
+    fun IDParser.idParser(): ResourceFileParser
+
+    @Binds
+    @IntoMap
+    @ParserKey(ParserType.DEFAULT_PARSER)
+    fun DefaultXmlParser.defaultXmlParser(): ResourceFileParser
+}
+
+@Module(includes = [ParserModule::class])
+object ResToRClassModule {
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun resToRClassGeneratorImpl(@Named(OUTPUT) dir: File?, resToRParser: ResToRParser): ResToRClassGenerator {
+        return ResToRClassGeneratorImpl(resToRParser, dir)
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun resToRClassParser(parsers: Map<ParserType, @JvmSuppressWildcards ResourceFileParser>): ResToRParser {
+        return ResToRParserImpl(parsers)
+    }
+}
