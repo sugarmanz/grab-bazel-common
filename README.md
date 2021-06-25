@@ -113,6 +113,20 @@ kt_db_android_library(
 )
 ```
 
+This requires the following flags in `.bazelrc` file.
+
+```python
+# Databinding flags
+build --experimental_android_databinding_v2
+build --android_databinding_use_v3_4_args
+build --android_databinding_use_androidx
+
+# Flags to enable latest android providers in rules
+build --experimental_google_legacy_api
+query --experimental_google_legacy_api
+```
+
+
 ### Custom Resource Sets
 Bazel expects certain Android resource folder structure (should start with `res/`) and this can conflict with Android Gradle plugin's custom resource source set feature which does not have this validation. This macro helps to adapt the folder to Bazel expected structure so both build systems can function.
 
