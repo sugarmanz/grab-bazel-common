@@ -1,0 +1,18 @@
+
+
+java_plugin(
+    name = "auto-service-plugin",
+    processor_class = "com.google.auto.service.processor.AutoServiceProcessor",
+    deps = [
+        "@maven//:com_google_auto_service_auto_service",
+    ],
+)
+
+java_library(
+    name = "auto-service",
+    exported_plugins = [":auto-service-plugin"],
+    visibility=[ "//visibility:public" ],
+    exports = [
+        "@maven//:com_google_auto_service_auto_service",
+    ],
+)
