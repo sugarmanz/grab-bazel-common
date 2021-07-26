@@ -35,7 +35,7 @@ kt_jvm_test(
     srcs = glob([
         "..."
     ]),
-    test_class = "com.grab.test.TestSuite", // Be aware that the package name is hardcoded
+    test_class = "com.grazel.generated.TestSuite", // Be aware that the package name is hardcoded
     deps = [
         "@grab_bazel_common//tools/test-info-processor:test-suite-generator",
         "@com_github_jetbrains_kotlin//:kotlin-test",
