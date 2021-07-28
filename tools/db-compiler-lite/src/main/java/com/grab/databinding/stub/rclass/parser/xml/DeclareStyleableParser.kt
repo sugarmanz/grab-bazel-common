@@ -56,7 +56,7 @@ class DeclareStyleableParser @Inject constructor() : ResourceFileParser {
 
         // Add parent styleable
         var stylelableParentName = entry.tagName.replace(".", "_")
-        rFields.add(RFieldEntry(Type.STYLEABLE, entry.tagName, styleableValue, true))
+        rFields.add(RFieldEntry(Type.STYLEABLE, stylelableParentName, styleableValue, true))
 
         return rFields.let {
             ParserResult(it, Type.STYLEABLE)
