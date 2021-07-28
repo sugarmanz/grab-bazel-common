@@ -55,6 +55,7 @@ class DeclareStyleableParser @Inject constructor() : ResourceFileParser {
         val styleableValue = rFields.joinToString(separator = ",") { defaultResValue }.let { "{ ${it} }" }
 
         // Add parent styleable
+        var stylelableParentName = entry.tagName.replace(".", "_")
         rFields.add(RFieldEntry(Type.STYLEABLE, entry.tagName, styleableValue, true))
 
         return rFields.let {
