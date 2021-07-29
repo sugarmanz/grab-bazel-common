@@ -47,7 +47,8 @@ class DeclareStyleableParser @Inject constructor() : ResourceFileParser {
         val rFields = mutableSetOf<RFieldEntry>()
 
         entry.children.forEach {
-            val childName = "${entry.tagName}_${it}"
+            var childStyleName = entry.tagName.replace(".", "_")
+            val childName = "${childStyleName}_${it}"
             rFields.add(RFieldEntry(Type.STYLEABLE, childName, defaultResValue))
         }
 
