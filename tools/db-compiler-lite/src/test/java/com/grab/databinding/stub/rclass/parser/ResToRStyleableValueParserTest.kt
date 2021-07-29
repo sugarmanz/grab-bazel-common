@@ -77,4 +77,31 @@ class ResToRStyleableValueParserTest : BaseBindingStubTest() {
         assertEquals(mapOf(Type.STYLEABLE to exptectedStyleable,
             Type.ATTR to exptectedAttrs), result)
     }
+
+    @Test
+    fun `assert styleable values are parsed correctly without dot`() {
+        val listTemp = testResFiles(
+                TestResFile("styleable.xml",
+                        contents = """
+                <resources>
+                    <declare-styleable name="Base.StyleableView">
+                        <attr name="colorAttr" />
+                        <attr name="sizeAttr" />
+                    </declare-styleable>
+                </resources>
+                """.trimIndent(), path = "/src/res/values/")
+        )
+
+        val result = resToRParser.parse(listTemp, emptyList<String>()) as MutableMap<Type, MutableSet<RFieldEntry>>
+        val parentValue = "{ 0,0 }"
+        val exptectedStyleable = setOf(RFieldEntry(Type.STYLEABLE, "Base_StyleableView", parentValue, isArray = true),
+                RFieldEntry(Type.STYLEABLE, "Base_StyleableView_colorAttr", value),
+                RFieldEntry(Type.STYLEABLE, "Base_StyleableView_sizeAttr", value))
+
+        val exptectedAttrs = setOf(RFieldEntry(Type.ATTR, "colorAttr", value),
+                RFieldEntry(Type.ATTR, "sizeAttr", value))
+
+        assertEquals(mapOf(Type.STYLEABLE to exptectedStyleable,
+                Type.ATTR to exptectedAttrs), result)
+    }
 }
