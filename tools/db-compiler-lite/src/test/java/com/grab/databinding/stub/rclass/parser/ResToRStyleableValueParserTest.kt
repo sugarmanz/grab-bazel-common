@@ -79,7 +79,7 @@ class ResToRStyleableValueParserTest : BaseBindingStubTest() {
     }
 
     @Test
-    fun `assert styleable values are parsed correctly without dot`() {
+    fun `assert styleable values are parsed correctly (dot will be replaced with underscore)`() {
         val listTemp = testResFiles(
                 TestResFile("styleable.xml",
                         contents = """
