@@ -45,43 +45,43 @@ maven_install(
 ### Build Config Fields
 `Build Config` support for android projects
 ```python
- load("@grab_bazel_common//tools/build_config:build_config.bzl", "build_config")
+load("@grab_bazel_common//tools/build_config:build_config.bzl", "build_config")
 
- build_config(
-     name = "feature-toggle-build-config",
-     package_name = "com.grab.featuretoggle",
-     strings = {
-         "ID": "Hello",
-     },
-     ints = {},
-     longs = {},
-     strings = {},
- )
+build_config(
+    name = "feature-toggle-build-config",
+    package_name = "com.grab.featuretoggle",
+    strings = {
+        "ID": "Hello",
+    },
+    ints = {},
+    longs = {},
+    strings = {},
+)
 ```
    
 ### Res values   
 `resValue` strings support for Android Projects
 
 ```python
- load("@grab_bazel_common//tools/res_value:res_value.bzl", "res_value")
- # Define resValues
- res_value(
-     name = "app-res-value",
-     custom_package = "com.grab.playground",
-     manifest = "src/main/AndroidManifest.xml",
-     strings = {
-         "prefix": "app",
-         "field": "debug"
-     },
- )
- 
- # Usage of defined resValues
- android_library(
-     deps = [
-         ":app-res-value",
-         ...
-     ],
- )
+load("@grab_bazel_common//tools/res_value:res_value.bzl", "res_value")
+# Define resValues
+res_value(
+    name = "app-res-value",
+    custom_package = "com.grab.playground",
+    manifest = "src/main/AndroidManifest.xml",
+    strings = {
+        "prefix": "app",
+        "field": "debug"
+    },
+)
+
+# Usage of defined resValues
+android_library(
+    deps = [
+        ":app-res-value",
+        ...
+    ],
+)
 ```   
 
 ### Databinding 
