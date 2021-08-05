@@ -1,7 +1,7 @@
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library", "kt_jvm_test")
 
 
-def grab_android_local_test(name, srcs, deps, **kwargs):
+def grab_android_local_test(name, srcs, deps, associates = [], **kwargs):
     """A macro generates test targets to execute all android library unit tests. The macro is an abstraction between unit test info (srcs, deps, etc.) and any approaches to run unit tests.
 
     Usage:
@@ -20,6 +20,7 @@ def grab_android_local_test(name, srcs, deps, **kwargs):
     kt_jvm_library(
         name = jvm_lib_name,
         srcs = srcs,
+        associates = associates,
         deps = deps + [
             "@maven//:org_robolectric_robolectric",
             "@robolectric//bazel:android-all",
