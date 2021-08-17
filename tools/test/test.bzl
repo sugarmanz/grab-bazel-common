@@ -1,5 +1,5 @@
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_test")
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_test")
 
 def grab_android_local_test(name, srcs, deps, associates = [], **kwargs):
     """A macro generates test targets to execute all android library unit tests.
