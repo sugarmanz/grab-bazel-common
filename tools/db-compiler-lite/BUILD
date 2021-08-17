@@ -1,4 +1,5 @@
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library", "kt_jvm_test")
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library")
+load("@grab_bazel_common//tools/test:test.bzl", "grab_kt_jvm_test")
 
 kt_jvm_library(
     name = "db-compiler-lite-lib",
@@ -20,16 +21,13 @@ kt_jvm_library(
     ],
 )
 
-kt_jvm_test(
+grab_kt_jvm_test(
     name = "db-compiler-lite-test",
-    size = "small",
     srcs = glob([
         "src/test/java/**/*.kt",
     ]),
-    test_class = "com.grab.databinding.stub.AllTests",
     deps = [
         ":db-compiler-lite-lib",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )

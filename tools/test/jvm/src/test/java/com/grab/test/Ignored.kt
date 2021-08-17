@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.grab.test
 
-package com.grab.buildconfig
-
-import com.grab.buildconfig.sample.BuildConfig
+import org.junit.Assert
 import org.junit.Test
-import kotlin.test.assertEquals
 
-const val VERSION_FROM_CONFIG = "1.2.3"
-
-class BuildConfigReplaceDefaultTests {
-
+/**
+ * This class's name does not match the file name and it is expected this will be ignored by the macro
+ */
+class IgnoredTest {
     @Test
-    fun `assert VERSION_NAME should not be replaced by default value`() {
-        assertEquals(
-                VERSION_FROM_CONFIG,
-                BuildConfig.VERSION_NAME,
-                "Version name is replaced by default value"
-        )
+    fun `assert simple test`() {
+        Assert.assertEquals(2, 3) // Failing case
     }
-
-
 }
