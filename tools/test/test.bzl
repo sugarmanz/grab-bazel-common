@@ -111,9 +111,9 @@ def _gen_test_targets(
 
     test_names = []
     for src in srcs:
-        if src.endswith("Test.kt"):
-            # src/main/java/com/grab/test/TestFile.kt
-            path_split = src.rpartition("/")  # [src/main/java/com/grab/test,/,TestFile.kt]
+        if src.endswith("Test.kt") or src.endswith("Tests.kt"):
+            # src/test/java/com/grab/test/TestFile.kt
+            path_split = src.rpartition("/")  # [src/test/java/com/grab/test,/,TestFile.kt]
 
             test_file = path_split[2]  # Testfile.kt
             test_file_name = test_file.split(".")[0]  # Testfile
@@ -121,8 +121,8 @@ def _gen_test_targets(
             # Find package name from path
             path = path_split[0]  # src/main/java/com/grab/test
             test_package = ""
-            if path.find("src/test/java/") != -1:  # TODO make this path configurables
-                path = path.split("src/test/java/")[1]  # com/grab/test
+            if path.find("src/test/java/") != -1 or path.find("src/test/kotlin/"):  # TODO make this path configurable
+                path = path.split("src/test/java/")[1] if path.find("src/test/java/") != -1 else path.split("src/test/kotlin/")[1] # com/grab/test
                 test_class = path.replace("/", ".") + "." + test_file_name  # com.grab.test.TestFile
 
                 test_target_name = test_class.replace(".", "_")
