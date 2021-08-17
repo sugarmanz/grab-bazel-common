@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.grab.test
 
-package com.grab.pax.binding.processor
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+class SampleTest {
+    @Test
+    fun `assert simple test`() {
+        assertEquals(2, 1 + 1)
+    }
 
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-    value = [
-        GeneratedMethodsTest::class,
-        BindingAdapterProcessorTest::class
-    ]
-)
-class AllTests
+    @Test
+    fun `assert internal class access`() {
+        SampleClass().assert()
+        assertEquals(2, 1 + 1)
+    }
+}
