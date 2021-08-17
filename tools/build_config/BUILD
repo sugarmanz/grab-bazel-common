@@ -1,5 +1,5 @@
 load(":build_config.bzl", "build_config")
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_test")
+load("@grab_bazel_common//tools/test:test.bzl", "grab_kt_jvm_test")
 
 build_config(
     name = "build-config-sample",
@@ -24,16 +24,13 @@ build_config(
     },
 )
 
-kt_jvm_test(
+grab_kt_jvm_test(
     name = "build-config-test",
-    size = "small",
     srcs = [
-        "src/test/java/com/grab/buildconfig/BuildConfigTests.kt",
+        "src/test/java/com/grab/buildconfig/BuildConfigTest.kt",
     ],
-    test_class = "com.grab.buildconfig.BuildConfigTests",
     deps = [
         ":build-config-sample",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )
@@ -47,16 +44,14 @@ build_config(
     },
 )
 
-kt_jvm_test(
+grab_kt_jvm_test(
     name = "build-config-replace-default-test",
     size = "small",
     srcs = [
-        "src/test/java/com/grab/buildconfig/BuildConfigReplaceDefaultTests.kt",
+        "src/test/java/com/grab/buildconfig/BuildConfigReplaceDefaultTest.kt",
     ],
-    test_class = "com.grab.buildconfig.BuildConfigReplaceDefaultTests",
     deps = [
         ":build-config-replace-default",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )
