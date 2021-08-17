@@ -20,7 +20,7 @@ import com.grab.buildconfig.sample.BuildConfig
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class BuildConfigTests {
+class BuildConfigTest {
 
     @Test
     fun `assert default generated fields`() {

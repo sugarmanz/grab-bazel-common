@@ -45,9 +45,9 @@ maven_install(
     strict_visibility = True,
 )
 
-RULES_KOTLIN_VERSION = "legacy-1.4.0-rc3"
+RULES_KOTLIN_VERSION = "v1.5.0-beta-3"
 
-RULES_KOTLIN_SHA = "da0e6e1543fcc79e93d4d93c3333378f3bd5d29e82c1bc2518de0dbe048e6598"
+RULES_KOTLIN_SHA = "58edd86f0f3c5b959c54e656b8e7eb0b0becabd412465c37a2078693c2571f7f"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
@@ -83,5 +83,3 @@ new_local_repository(
     build_file_content = ANDROID_TOOLS_BUILD_FILE,
     path = ".",
 )
-
-
