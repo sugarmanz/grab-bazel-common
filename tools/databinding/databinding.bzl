@@ -173,14 +173,14 @@ def kt_db_android_library(
     The macro ensures that Kotlin code referenced in any XMLs are compiled first using kt_android_library
     and then uses android_library's enable_data_binding to generate required Databinding classes.
 
-    This helps in breaking circular dependency when we have android_library (databinding enabled) -> kt_android_library. 
-    In that case, Databinding classes can't be generated until resources are processed and that happens only in android_library 
+    This helps in breaking circular dependency when we have android_library (databinding enabled) -> kt_android_library.
+    In that case, Databinding classes can't be generated until resources are processed and that happens only in android_library
     target. So compiling Koltin classes becomes dependent on android_library and android_library depends on kt_android_library since
     it needs class files to process class references in XML. This macro alleviates this problem by processing resources without
-    android resources or `aapt` via a custom compiler and generates stub classes like R.java, BR.java and *Binding.java. 
+    android resources or `aapt` via a custom compiler and generates stub classes like R.java, BR.java and *Binding.java.
 
-    Then Kotlin code can be safely compiled without errors. In the final stage, the stub classes are replaced with actual classes by 
-    android_library target. 
+    Then Kotlin code can be safely compiled without errors. In the final stage, the stub classes are replaced with actual classes by
+    android_library target.
 
     It also supports @BindingAdapters written in Kotlin.
 

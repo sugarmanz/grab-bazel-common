@@ -7,7 +7,7 @@ kt_jvm_library(
         "src/main/java/**/*.kt",
     ]),
     deps = [
-        "//tools/auto-service:auto-service",
+        "//tools/auto-service",
         "@maven//:com_google_auto_auto_common",
         "@maven//:com_google_auto_service_auto_service",
         "@maven//:com_squareup_javapoet",
@@ -20,7 +20,7 @@ java_plugin(
     generates_api = True,
     processor_class = "com.grab.pax.test.processor.TestSuiteGenerator",
     deps = [
-        ":test-suite-generator-lib"
+        ":test-suite-generator-lib",
     ],
 )
 
@@ -34,7 +34,7 @@ kt_jvm_test(
     name = "test-suite-generator-test",
     size = "small",
     srcs = glob([
-        "src/test/java/**/*.kt"
+        "src/test/java/**/*.kt",
     ]),
     test_class = "com.grazel.generated.TestSuite",
     deps = [

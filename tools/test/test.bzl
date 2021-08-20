@@ -120,10 +120,10 @@ def _gen_test_targets(
 
             # Find package name from path
             path = path_split[0]  # src/main/java/com/grab/test
-            
+
             test_package = ""
             if path.find("src/test/java/") != -1 or path.find("src/test/kotlin/") != -1:  # TODO make this path configurable
-                path = path.split("src/test/java/")[1] if path.find("src/test/java/") != -1 else path.split("src/test/kotlin/")[1] # com/grab/test
+                path = path.split("src/test/java/")[1] if path.find("src/test/java/") != -1 else path.split("src/test/kotlin/")[1]  # com/grab/test
                 test_class = path.replace("/", ".") + "." + test_file_name  # com.grab.test.TestFile
 
                 test_target_name = test_class.replace(".", "_")
@@ -133,9 +133,9 @@ def _gen_test_targets(
                 # file to act as trigger
                 trigger = "_" + test_target_name + "_trigger"
                 native.genrule(
-                        name = trigger,
-                        outs = [test_target_name + "_Trigger.kt"],
-                        cmd = """echo "" > $@""",
+                    name = trigger,
+                    outs = [test_target_name + "_Trigger.kt"],
+                    cmd = """echo "" > $@""",
                 )
 
                 if runner_associates:
