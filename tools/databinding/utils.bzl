@@ -8,6 +8,7 @@ def copy_file_action(ctx, in_file, out_file, file_type = ""):
         out_file: Desination where the file will be copied to.
         file_type: Metadata about the file that will be printed in progress message.
     """
+
     # TODO Replace with symlink
     ctx.actions.run_shell(
         inputs = [in_file],

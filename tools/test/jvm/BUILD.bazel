@@ -14,7 +14,7 @@ grab_kt_jvm_test(
         "src/test/java/**/*.kt",
     ]),
     associates = [
-        ":grab_kt_jvm"
+        ":grab_kt_jvm",
     ],
     deps = [
         "@maven//:junit_junit",
