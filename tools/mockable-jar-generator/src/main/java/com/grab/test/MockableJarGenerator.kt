@@ -39,13 +39,27 @@ import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
 private const val EMPTY_FLAGS = 0
-private val CONSTRUCTOR: String? = "<init>"
-private val CLASS_CONSTRUCTOR: String? = "<clinit>"
+private const val CONSTRUCTOR: String = "<init>"
+private const val CLASS_CONSTRUCTOR: String = "<clinit>"
 private val ENUM_METHODS = setOf(CLASS_CONSTRUCTOR, "valueOf", "values")
-private val INTEGER_LIKE_TYPES = setOf<Type>(Type.INT_TYPE, Type.BYTE_TYPE, Type.BOOLEAN_TYPE, Type.CHAR_TYPE, Type.SHORT_TYPE)
+private val INTEGER_LIKE_TYPES = setOf<Type>(
+    Type.INT_TYPE,
+    Type.BYTE_TYPE,
+    Type.BOOLEAN_TYPE,
+    Type.CHAR_TYPE,
+    Type.SHORT_TYPE
+)
 
 class MockableJarGenerator(private val returnDefaultValues: Boolean) {
-    private val prefixesToSkip = setOf("java.", "javax.", "org.xml.", "org.w3c.", "junit.", "org.apache.commons.logging")
+
+    private val prefixesToSkip = setOf(
+        "java.",
+        "javax.",
+        "org.xml.",
+        "org.w3c.",
+        "junit.",
+        "org.apache.commons.logging"
+    )
 
     @Throws(IOException::class)
     fun createMockableJar(input: File, output: File) {
@@ -83,7 +97,11 @@ class MockableJarGenerator(private val returnDefaultValues: Boolean) {
      * Writes a modified *.class file to the output JAR file.
      */
     @Throws(IOException::class)
-    private fun rewriteClass(entry: JarEntry, inputStream: InputStream, outputStream: JarOutputStream) {
+    private fun rewriteClass(
+        entry: JarEntry,
+        inputStream: InputStream,
+        outputStream: JarOutputStream
+    ) {
         val classNode = ClassNode(Opcodes.ASM5)
         ClassReader(inputStream).apply {
             accept(classNode, EMPTY_FLAGS)
@@ -108,7 +126,8 @@ class MockableJarGenerator(private val returnDefaultValues: Boolean) {
         }
         classNode.fields.forEach { node ->
             if (node.access and Opcodes.ACC_PUBLIC !== 0 &&
-                    node.access and Opcodes.ACC_STATIC === 0) {
+                node.access and Opcodes.ACC_STATIC === 0
+            ) {
                 node.access = node.access and Opcodes.ACC_FINAL.inv()
             }
         }
@@ -181,15 +200,22 @@ class MockableJarGenerator(private val returnDefaultValues: Boolean) {
                 instructions.add(TypeInsnNode(Opcodes.NEW, runtimeException))
                 instructions.add(InsnNode(Opcodes.DUP))
                 val className = classNode.name.replace('/', '.')
-                instructions.add(LdcInsnNode("Method " + methodNode.name + " in " + className
-                        + " not mocked. "
-                        + "See http://g.co/androidstudio/not-mocked for details."))
-                instructions.add(MethodInsnNode(
+                instructions.add(
+                    LdcInsnNode(
+                        "Method " + methodNode.name + " in " + className
+                                + " not mocked. "
+                                + "See http://g.co/androidstudio/not-mocked for details."
+                    )
+                )
+                instructions.add(
+                    MethodInsnNode(
                         Opcodes.INVOKESPECIAL,
                         runtimeException,
                         CONSTRUCTOR,
                         Type.getType(constructor).descriptor,
-                        false))
+                        false
+                    )
+                )
                 instructions.add(InsnNode(Opcodes.ATHROW))
             }
         } catch (e: NoSuchMethodException) {

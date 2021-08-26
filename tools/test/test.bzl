@@ -1,13 +1,24 @@
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_test")
 
-def grab_android_local_test(name, srcs, deps, associates = [], **kwargs):
-    """A macro generates test targets to execute all android library unit tests.
+def grab_android_local_test(
+        name,
+        srcs,
+        deps,
+        associates = [],
+        custom_package = "",
+        **kwargs):
+    """A macro that generates test targets to execute all android library unit tests.
 
     Usage:
     The macro creates a single build target to compile all Android unit test classes and then creates
     multiple parallel test targets for each Test class. The name of the test class is derived from
-    test class name and location of the file disk
+    test class name and location of the file on disk.
+
+    The macro adds a mocked Android jar to compile classpath similar to Android Gradle Plugin's
+    testOptions.unitTests.returnDefaultValues = true feature.
+
+    Executing via Robolectric is not supported.
 
     Args:
         name: name for the test target,
@@ -18,17 +29,18 @@ def grab_android_local_test(name, srcs, deps, associates = [], **kwargs):
     """
     _gen_test_targets(
         test_compile_rule_type = kt_jvm_library,
-        test_runner_rule_type = native.android_local_test,
+        test_runner_rule_type = kt_jvm_test,
         name = name,
         srcs = srcs,
         associates = associates,
         deps = deps,
         runner_associates = False,
         test_compile_deps = [
-            "@maven//:org_robolectric_robolectric",
-            "@robolectric//bazel:android-all",
+            "@grab_bazel_common//tools/test:mockable-android-jar",
         ],
-        test_runner_deps = [],
+        test_runner_deps = [
+            "@grab_bazel_common//tools/test:mockable-android-jar",
+        ],
         **kwargs
     )
 
@@ -38,12 +50,12 @@ def grab_kt_jvm_test(
         deps,
         associates = [],
         **kwargs):
-    """A macro generates test targets to execute all Kotlin unit tests.
+    """A macro that generates test targets to execute all Kotlin unit tests.
 
     Usage:
-        The macro creates a single build target to compile all Android unit test classes and then creates
+        The macro creates a single build target to compile all unit test classes and then creates
         multiple parallel test targets for each Test class. The name of the test class is derived from
-        test class name and location of the file disk
+        test class name and location of the file disk.
 
     Args:
         name: name for the test target,
@@ -60,10 +72,8 @@ def grab_kt_jvm_test(
         associates = associates,
         deps = deps,
         test_compile_deps = [
-            "@com_github_jetbrains_kotlin//:kotlin-test",
         ],
         test_runner_deps = [
-            "@com_github_jetbrains_kotlin//:kotlin-test",
         ],
         **kwargs
     )
@@ -105,7 +115,7 @@ def _gen_test_targets(
     test_compile_rule_type(
         name = jvm_lib_name,
         srcs = srcs,
-        deps = deps + test_compile_deps,
+        deps = test_compile_deps + deps,
         associates = associates,
     )
 
@@ -143,19 +153,20 @@ def _gen_test_targets(
                         name = test_target_name,
                         srcs = [trigger],
                         test_class = test_class,
-                        deps = [
+                        deps = test_runner_deps + [
                             ":" + jvm_lib_name,
-                        ] + test_runner_deps,
+                        ],
                         associates = associates,
                         **kwargs
                     )
                 else:
                     test_runner_rule_type(
                         name = test_class.replace(".", "_"),
+                        srcs = [trigger],
                         test_class = test_class,
-                        deps = [
+                        deps = test_runner_deps + [
                             ":" + jvm_lib_name,
-                        ] + test_runner_deps,
+                        ],
                         **kwargs
                     )
 
