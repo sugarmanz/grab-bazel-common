@@ -26,21 +26,21 @@ import java.io.File
 class GeneratorCommand : CliktCommand() {
 
     private val inputJarFile: File by option(
-            "-i",
-            "--input-jar",
-            help = "Path to the input jar file"
+        "-i",
+        "--input-jar",
+        help = "Path to the input jar file"
     ).convert { File(it) }.required()
 
     private val outputJarFile: File by option(
-            "-o",
-            "--output-jar",
-            help = "Path to the output jar file"
+        "-o",
+        "--output-jar",
+        help = "Path to the output jar file"
     ).convert { File(it) }.required()
 
     private val returnDefaultValues: Boolean by option(
-            "-d",
-            "--default-value",
-            help = "Set the flag to true to make the methods return default values"
+        "-d",
+        "--default-value",
+        help = "Set the flag to true to make the methods return default values"
     ).convert { it == "true" }.default(true)
 
     override fun run() {
