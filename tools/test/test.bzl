@@ -40,6 +40,7 @@ def grab_android_local_test(
         ],
         test_runner_deps = [
             "@grab_bazel_common//tools/test:mockable-android-jar",
+            "@com_github_jetbrains_kotlin//:kotlin-reflect",
         ],
         **kwargs
     )
@@ -74,6 +75,7 @@ def grab_kt_jvm_test(
         test_compile_deps = [
         ],
         test_runner_deps = [
+            "@com_github_jetbrains_kotlin//:kotlin-reflect",
         ],
         **kwargs
     )
@@ -157,6 +159,9 @@ def _gen_test_targets(
                             ":" + jvm_lib_name,
                         ],
                         associates = associates,
+                        jvm_flags = [
+                            "-Xverify:none",
+                        ],
                         **kwargs
                     )
                 else:
@@ -166,6 +171,9 @@ def _gen_test_targets(
                         test_class = test_class,
                         deps = test_runner_deps + [
                             ":" + jvm_lib_name,
+                        ],
+                        jvm_flags = [
+                            "-Xverify:none",
                         ],
                         **kwargs
                     )
