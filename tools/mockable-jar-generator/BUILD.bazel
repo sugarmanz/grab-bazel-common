@@ -1,0 +1,28 @@
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library", "kt_jvm_test")
+
+kt_jvm_library(
+    name = "mockable-jar-generator-lib",
+    srcs = glob([
+        "src/main/java/**/*.kt",
+    ]),
+    visibility = [
+        "//visibility:private",
+    ],
+    deps = [
+        "@com_github_jetbrains_kotlin//:kotlin-stdlib-jdk8",
+        "@maven//:com_github_ajalt_clikt",
+        "@maven//:org_ow2_asm_asm",
+        "@maven//:org_ow2_asm_asm_tree",
+    ],
+)
+
+java_binary(
+    name = "mockable-jar-generator",
+    main_class = "com.grab.test.MainKt",
+    visibility = [
+        "//visibility:public",
+    ],
+    runtime_deps = [
+        ":mockable-jar-generator-lib",
+    ],
+)

@@ -31,6 +31,7 @@ grab_kt_jvm_test(
     ],
     deps = [
         ":build-config-sample",
+        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )
@@ -52,6 +53,7 @@ grab_kt_jvm_test(
     ],
     deps = [
         ":build-config-replace-default",
+        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )
