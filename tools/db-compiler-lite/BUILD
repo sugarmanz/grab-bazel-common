@@ -28,6 +28,7 @@ grab_kt_jvm_test(
     ]),
     deps = [
         ":db-compiler-lite-lib",
+        "@com_github_jetbrains_kotlin//:kotlin-test",
         "@maven//:junit_junit",
     ],
 )
