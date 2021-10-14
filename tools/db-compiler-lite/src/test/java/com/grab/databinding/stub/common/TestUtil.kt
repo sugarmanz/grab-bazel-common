@@ -32,7 +32,6 @@ abstract class BaseBindingStubTest {
     protected fun testResFiles(vararg testResFiles: TestResFile): List<File> {
         return testResFiles.map { (fileName, contents, path) ->
             File(temporaryFolder.newFolder(random.nextInt().toString() + path), fileName).apply {
-                println(this.path)
                 delete()
                 writeText(contents)
             }

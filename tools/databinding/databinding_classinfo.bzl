@@ -1,4 +1,4 @@
-load(":utils.bzl", "copy_file_action", "extract_binding_classes")
+load(":utils.bzl", "extract_binding_classes")
 
 """
 A rule to collect content immediate deps' databinding classInfo.zip metadata files and merge them into
@@ -9,8 +9,10 @@ _CLASS_INFOS = "class_infos.zip"
 
 def _direct_class_infos(ctx):
     """
-    Merges contents of databinding classInfo.zip into single zip.
+    A rule to extract classInfo.zip contents as zip from android_library targets appearing as direct
+    dependencies in the deps.
     """
+    package = ctx.attr.package
     merged_class_info_zip = ctx.outputs.class_infos
     merged_class_info_zip_dir = ctx.actions.declare_directory("class_infos")
 
@@ -27,6 +29,8 @@ def _direct_class_infos(ctx):
     ctx.actions.run_shell(
         inputs = class_infos,
         outputs = [merged_class_info_zip_dir],
+        mnemonic = "ExtractDatabindingClassInfos",
+        progress_message = "Extracting %s's direct databinding class infos" % (package),
         command = ("mkdir -p %s\n" % (merged_class_info_zip_dir.path)) +
                   "\n".join([
                       "unzip -q -o %s -d %s/" % (class_info.path, merged_class_info_zip_dir.path)
@@ -41,9 +45,9 @@ def _direct_class_infos(ctx):
     ctx.actions.run_shell(
         inputs = [merged_class_info_zip_dir],
         outputs = [merged_class_info_zip],
-        progress_message = "Merging direct databinding class infos",
+        progress_message = "Merging %s's direct databinding class infos" % (package),
         tools = [ctx.executable._zipper],
-        mnemonic = "MergeDatabindingClassInfo",
+        mnemonic = "MergeDatabindingClassInfos",
         command = """
         # Use -L to follow symlinks
         find -L {dir} -type f -exec {zipper_path} c {output} {{}} +
@@ -57,6 +61,7 @@ def _direct_class_infos(ctx):
 direct_class_infos = rule(
     implementation = _direct_class_infos,
     attrs = {
+        "package": attr.string(mandatory = True),
         "deps": attr.label_list(),
         "_zipper": attr.label(
             default = Label("@bazel_tools//tools/zip:zipper"),

@@ -11,7 +11,7 @@ DATABINDING_DEPS = [
     "@maven//:androidx_annotation_annotation",
 ]
 
-_binding_stub_target = "@grab_bazel_common//tools/db-compiler-lite:db-compiler-lite"
+_stub_compiler_target = "@grab_bazel_common//tools/db-compiler-lite:db-compiler-lite"
 _r_classes = "r-classes"
 _binding_classes_jar = "binding-classes.srcjar"
 _zipper = "@bazel_tools//tools/zip:zipper"
@@ -67,14 +67,16 @@ def _databinding_stubs(
     class_infos = "_class_infos"
     direct_class_infos(
         name = class_infos,
+        package = native.package_name(),
         deps = deps,
     )
 
     # Extract R.txt for every dependency aar to generate joined R.java for a module.
-    r_txt_zip = "_r_txt_zip"
+    r_txts = "_r_txts"
     extract_r_txt_deps(
-        name = r_txt_zip,
-        libs = deps,
+        name = r_txts,
+        package = native.package_name(),
+        deps = deps,
     )
 
     # Prepare --layout argument for binding stub generator which passes all layout files as
@@ -94,7 +96,7 @@ def _databinding_stubs(
     native.genrule(
         name = name + "-generator",
         srcs = [
-            r_txt_zip,
+            r_txts,
             ":" + res_filegroup,
             # We add layout files as input to ensure the genrule runs again when
             # files are changed.
@@ -106,9 +108,10 @@ def _databinding_stubs(
             _binding_classes_jar,
         ],
         tools = [
-            _binding_stub_target,
+            _stub_compiler_target,
             "@bazel_tools//tools/zip:zipper",
         ],
+        message = "Generating %s's databinding stub classes" % (native.package_name()),
         toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
         cmd = """
         cp $(location {class_infos}) class_infos.zip
@@ -126,9 +129,9 @@ def _databinding_stubs(
         find db-stubs -type f -exec $(location {zipper}) c $(location :{binding_classes}) {{}} +
         """.format(
             layouts = layouts_arg,
-            r_txt_dep = r_txt_zip,
+            r_txt_dep = r_txts,
             resources = res_arg,
-            _binding_stub_target = _binding_stub_target,
+            _binding_stub_target = _stub_compiler_target,
             package = custom_package,
             r_classes = r_classes_src,
             binding_classes = _binding_classes_jar,
@@ -170,17 +173,19 @@ def kt_db_android_library(
         tags = []):
     """Configures rules for compiling android module that uses Databinding and Kotlin.
 
-    The macro ensures that Kotlin code referenced in any XMLs are compiled first using kt_android_library
+    The macro ensures that Kotlin code referenced in any XMLs are compiled first using kt_jvm_library
     and then uses android_library's enable_data_binding to generate required Databinding classes.
 
     This helps in breaking circular dependency when we have android_library (databinding enabled) -> kt_android_library.
-    In that case, Databinding classes can't be generated until resources are processed and that happens only in android_library
-    target. So compiling Koltin classes becomes dependent on android_library and android_library depends on kt_android_library since
-    it needs class files to process class references in XML. This macro alleviates this problem by processing resources without
-    android resources or `aapt` via a custom compiler and generates stub classes like R.java, BR.java and *Binding.java.
+    In that case, Databinding classes can't be generated until resources are processed and that
+    happens only in android_library target. So compiling Koltin classes becomes dependent on
+    android_library and android_library depends on kt_android_library since it needs class files to
+    process class references in XML. This macro alleviates this problem by processing resources
+    without `aapt` via a custom compiler and generates stub classes like
+    R.java, BR.java and *Binding.java.
 
-    Then Kotlin code can be safely compiled without errors. In the final stage, the stub classes are replaced with actual classes by
-    android_library target.
+    Then Kotlin code can be safely compiled without errors. In the final stage, the stub classes
+    are replaced with actual classes by android_library target.
 
     It also supports @BindingAdapters written in Kotlin.
 
@@ -268,7 +273,7 @@ def kt_db_android_library(
     # By the time this is compiled:
     # * Kotlin classes are already available via deps. So resources processing is safe.
     # * Kotlin @BindingAdapters are converted to Java via our annotation processor
-    # * Our stub classes would be replaced by android_library's actual generated code.
+    # * Our stub classes will be replaced by android_library's actual generated code.
     native.android_library(
         name = name,
         srcs = binding_adapter_sources,

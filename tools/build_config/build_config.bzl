@@ -54,8 +54,7 @@ def build_config(
 
     Usage:
     Add the field variables in the relevant dicts like (strings, booleans etc) and add a dependency
-    on this targets name. For example, if the build_config name is build_config then the
-    target to depend on from android_library or android_binary will be build_config_lib.
+    on this target.
 
     Args:
         name: Name for this target
@@ -112,9 +111,10 @@ $(location @bazel_tools//tools/zip:zipper) c $@ {build_config_file_path}
     )
 
     native.genrule(
-        name = name + "-gen",
+        name = "_" + name,
         outs = [build_config_jar],
         cmd = cmd,
+        message = "Generating %s's build config class" % (native.package_name()),
         tools = ["@bazel_tools//tools/zip:zipper"],
     )
 
