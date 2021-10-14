@@ -18,7 +18,10 @@ def grab_android_local_test(
     The macro adds a mocked Android jar to compile classpath similar to Android Gradle Plugin's
     testOptions.unitTests.returnDefaultValues = true feature.
 
-    Executing via Robolectric is not supported.
+    The macro assumes Kotlin is used and will use rules_kotlin's kt_jvm_library to compile test
+    sources with mocked android.jar on the classpath. The test will be executed with kt_jvm_test.
+
+    Executing via Robolectric is currently not supported.
 
     Args:
         name: name for the test target,
@@ -91,14 +94,16 @@ def _gen_test_targets(
         runner_associates = True,
         associates = [],
         **kwargs):
-    """A macro to auto generate and compile and runner targets for tests.
+    """A macro to auto generate and compile target and runner targets for tests.
 
     Usage:
         The macro works under certain assumptions and only works for Kotlin files. The macro builds
         all test sources in a single target specified by test_compile_rule_type and then generates
         parallel runner targets with test_runner_rule_type.
         In order for this to function correctly, the Kotlin test file and the class name should be the
-        same and package name of test class should mirror the location of the file on disk.
+        same and package name of test class should mirror the location of the file on disk. The root
+        source set path must be either src/main/java or src/main/kotlin (this can be made configurable
+        in the future).
 
     Args:
     test_compile_rule_type: The rule type that will be used for compiling test sources
@@ -113,12 +118,14 @@ def _gen_test_targets(
     associates: The list of associate targets to allow access to internal members.
     """
     jvm_lib_name = name + "_build"
+    trigger = "@grab_bazel_common//tools/test/internal:_empty_kotlin"
 
     test_compile_rule_type(
         name = jvm_lib_name,
         srcs = srcs,
         deps = test_compile_deps + deps,
         associates = associates,
+        testonly = True,
     )
 
     test_names = []
@@ -140,15 +147,6 @@ def _gen_test_targets(
 
                 test_target_name = test_class.replace(".", "_")
                 test_names.append(test_target_name)
-
-                # Kt jvm test complains when no sources are given but deps are given, so pass a dummy
-                # file to act as trigger
-                trigger = "_" + test_target_name + "_trigger"
-                native.genrule(
-                    name = trigger,
-                    outs = [test_target_name + "_Trigger.kt"],
-                    cmd = """echo "" > $@""",
-                )
 
                 if runner_associates:
                     test_runner_rule_type(

@@ -4,9 +4,9 @@ def parcelize_rules():
     """Create Kotlin parcelize rules
 
     Usage:
-    This macro will create an "parcelize" target, which is a kt_compiler_plugin. You can apply this rule to your project by referring to it as //:android-extensions
-    in deps. The target automatically exports runtime dependencies needed for the plugin.
-    For example:
+    This macro exposes :parcelize target which is kt_jvm_library that exports the parcelize compiler
+    plugin. Ideal usage is to declare this macro in root BUILD.bazel and invoke it via //:parcelize
+    on a kt_android_library or kt_jvm_library target.
 
     kt_android_library(
         name = "lib",

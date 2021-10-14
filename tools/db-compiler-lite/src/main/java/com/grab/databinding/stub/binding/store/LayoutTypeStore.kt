@@ -144,7 +144,6 @@ constructor(
                             .outputStream()
                             .use { output -> input.copyTo(output) }
                     }
-                    true
                 }
             }
         }
