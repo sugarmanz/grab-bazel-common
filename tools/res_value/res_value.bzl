@@ -17,30 +17,29 @@ def res_value(
         custom_package,
         manifest,
         strings = {}):
-    """Generates a string xml file containing String values as AGP.
+    """Generates an android library target that exposes values specified in strings
+    as generated resources xml.
 
     Usage:
-    Provide the String variables in the String dictionary and add a dependency
-    on generated res target. For example, if the res_value name is app-res-value
-    then the target to depend on will be app-res-value.
+    Provide the string variables in the string dictionary and add a dependency on this target.
 
     Args:
         name: name for this target,
         custom_package: package used for Android resource processing,
         manifest: required when resource_files are defined,
-        strings: String value of type String
+        strings: string value of type string
     """
 
     res_value_file = "src/main/res/values/gen_strings.xml"
     strings_statements = _res_statement(strings)
     xml_generation = _generate_xml(strings_statements)
 
-    # Cmd for genrule.
     cmd = """echo "{xml_generation}" > $@""".format(xml_generation = xml_generation)
 
     native.genrule(
-        name = name + "-gen",
+        name = "_" + name,
         outs = [res_value_file],
+        message = "Generating %s's resources" % (native.package_name()),
         cmd = cmd,
     )
 

@@ -5,7 +5,7 @@ def copy_file_action(ctx, in_file, out_file, file_type = ""):
     Args:
         ctx: The rule context
         in_file: Source to be copied
-        out_file: Desination where the file will be copied to.
+        out_file: Destination where the file will be copied to.
         file_type: Metadata about the file that will be printed in progress message.
     """
 

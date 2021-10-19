@@ -1,7 +1,7 @@
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library", "kt_jvm_test")
 
 kt_jvm_library(
-    name = "mockable-jar-generator-lib",
+    name = "mockable-android-jar-lib",
     srcs = glob([
         "src/main/java/**/*.kt",
     ]),
@@ -17,12 +17,12 @@ kt_jvm_library(
 )
 
 java_binary(
-    name = "mockable-jar-generator",
+    name = "mocked-android-jar",
     main_class = "com.grab.test.MainKt",
     visibility = [
         "//visibility:public",
     ],
     runtime_deps = [
-        ":mockable-jar-generator-lib",
+        ":mockable-android-jar-lib",
     ],
 )

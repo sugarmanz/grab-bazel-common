@@ -17,7 +17,6 @@
 package com.grab.databinding.stub.common
 
 import java.io.File
-import java.nio.file.Paths
 
 interface Generator {
     val preferredDir: File?
@@ -31,11 +30,11 @@ interface Generator {
         }
 
     fun logFile(packageName: String, typeName: String) {
-        val fileName = Paths.get(
-            outputDir.path,
-            packageName.replace(".", "/"),
-            "$typeName.java"
-        )
-        println("Generated $fileName")
+//        val fileName = Paths.get(
+//            outputDir.path,
+//            packageName.replace(".", "/"),
+//            "$typeName.java"
+//        )
+//        println("Generated $fileName")
     }
 }
