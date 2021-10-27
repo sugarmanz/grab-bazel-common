@@ -6,6 +6,8 @@ GRAB_BAZEL_COMMON_ARTIFACTS = [
     "com.google.auto.service:auto-service:1.0-rc6",
     "com.squareup:javapoet:1.9.0",
     "com.github.ajalt:clikt:2.8.0",
+    "org.ow2.asm:asm:6.0",
+    "org.ow2.asm:asm-tree:6.0",
     "xmlpull:xmlpull:1.1.3.1",
     "net.sf.kxml:kxml2:2.3.0",
     "com.squareup.moshi:moshi:1.11.0",

@@ -33,8 +33,6 @@ maven_install(
         "androidx.databinding:databinding-adapters:3.4.2",
         "androidx.databinding:databinding-common:3.4.2",
         "androidx.databinding:databinding-runtime:3.4.2",
-        "org.ow2.asm:asm:6.0",
-        "org.ow2.asm:asm-tree:6.0",
         "androidx.annotation:annotation:1.1.0",
         "com.github.tschuchortdev:kotlin-compile-testing:1.3.1",
         "javax.inject:javax.inject:1",
