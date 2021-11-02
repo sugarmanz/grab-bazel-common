@@ -58,7 +58,10 @@ index 7d41ac3c..d611360e 100644
  import java.util.zip.ZipOutputStream
  
  object ZipUtil {
-+    val DEFAULT_TIMESTAMP = GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis
++    val DEFAULT_TIMESTAMP = LocalDateTime.of(2010, 1, 1, 0, 0, 0)
++        .atZone(ZoneId.systemDefault())
++        .toInstant()
++        .toEpochMilli()
 +
      fun unzip(file: File, outFolder: File) {
          if (!outFolder.exists() && !outFolder.mkdirs()) {
@@ -102,3 +105,8 @@ index a9fd885c..564d15ac 100644
                          convertToOutFile(file), isViewBindingEnabled);
              }
 ```
+
+#### Others
+* https://android.googlesource.com/platform/frameworks/data-binding/+/ae769bc6781a47e7e89a4ddfc0c4f8be9b6f76c1 Use Unix-like paths when sorting files
+* https://android.googlesource.com/platform/frameworks/data-binding/+/99f2b7c1e6db27ad89f42cbe85f3bf938209e245 Ensure deterministic order of entries in GenClassInfoLog
+* https://android.googlesource.com/platform/frameworks/data-binding/+/b1c2715b1be141226f9015618e0013536479c244 Sort files in directories to ensure deterministic order
