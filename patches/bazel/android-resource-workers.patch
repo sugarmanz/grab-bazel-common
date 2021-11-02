@@ -1,0 +1,19 @@
+diff --git a/src/tools/android/java/com/google/devtools/build/android/aapt2/ResourceCompiler.java b/src/tools/android/java/com/google/devtools/build/android/aapt2/ResourceCompiler.java
+index 1e1ccf9127..1ceb8c353d 100644
+--- a/src/tools/android/java/com/google/devtools/build/android/aapt2/ResourceCompiler.java
++++ b/src/tools/android/java/com/google/devtools/build/android/aapt2/ResourceCompiler.java
+@@ -358,7 +358,12 @@ public class ResourceCompiler {
+     @Override
+     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+       // Ignore directories and "hidden" files that start with .
+-      if (!Files.isDirectory(file) && !file.getFileName().toString().startsWith(".")) {
++      // Ignore files ending with *.tmp and *.params to avoid a race condition when workers are used
++      final String fileName = file.getFileName().toString();
++      if (!Files.isDirectory(file)
++              && !fileName.startsWith(".")
++              && !fileName.endsWith(".tmp")
++              && !fileName.endsWith(".params")) {
+         pathToProcessed.add(file);
+       }
+       return super.visitFile(file, attrs);
+-- 

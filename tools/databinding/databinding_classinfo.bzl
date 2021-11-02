@@ -22,8 +22,9 @@ def _direct_class_infos(ctx):
     for target in deps:
         if (DataBindingV2Info in target):
             data_binding_info = target[DataBindingV2Info]
-            if len(data_binding_info.class_infos) > 0:
-                class_infos.append(data_binding_info.class_infos[0])
+            ci = data_binding_info.class_infos.to_list()
+            if len(ci) > 0:
+                class_infos.append(ci[0])
 
     # Unzip all of them into common directory specified by merged_class_info_zip_dir
     ctx.actions.run_shell(
