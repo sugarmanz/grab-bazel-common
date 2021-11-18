@@ -160,7 +160,54 @@ android_binary(
     ),
 )
 ```
-   
+
+### Unit Test Macros
+
+Provides macros to simplify migrating unit tests to Bazel and ports over Android Gradle Plugin's [return default values](https://developer.android.com/studio/test/index.html#test_options) feature. With default values, Android Unit tests can be executed without [Robolectric](http://robolectric.org) by relying on mocked `android.jar` as an alternative to `android_local_test` in Bazel.
+
+The below macros makes assumptions that files containing Kotlin tests are named `*Tests.kt` or `Test.kt` and class name matches the file name.
+
+#### Kotlin Unit tests
+
+```python
+load("@grab_bazel_common//tools/test:test.bzl", "grab_kt_jvm_test")
+
+grab_kt_jvm_test(
+    name = "binding-adapter-processor-test",
+    srcs = glob([
+        "src/test/java/**/*.kt",
+    ]),
+    deps = [
+        ":binding-adapter-bridge",
+        ":binding-adapter-processor",
+        "@com_github_jetbrains_kotlin//:kotlin-test",
+        "@maven//:com_github_tschuchortdev_kotlin_compile_testing",
+        "@maven//:junit_junit",
+    ],
+)
+```
+This will generate a single build target for all Kotlin files and individual `*Test` targets for each `*Test` class. [Reference](tools/binding-adapter-bridge/BUILD.bazel).
+#### Android Unit tests
+
+Similarly for android unit tests, use `grab_android_local_test` to build and execute tests. [Reference](tools/test/android/BUILD.bazel).
+
+```python
+load("@grab_bazel_common//tools/test:test.bzl", "grab_android_local_test")
+
+grab_android_local_test(
+    name = "grab_android_local_test",
+    srcs = glob([
+        "src/test/java/**/*.kt",
+    ]),
+    associates = [
+        ":grab_android_local_test_lib_kt",
+    ],
+    deps = [
+        "@maven//:junit_junit",
+    ],
+)
+```
+
 # License
 
 ```
