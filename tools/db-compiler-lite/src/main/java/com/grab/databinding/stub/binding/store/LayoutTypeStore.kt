@@ -16,7 +16,7 @@
 
 package com.grab.databinding.stub.binding.store
 
-import com.grab.databinding.stub.common.CLASS_INFO
+import com.grab.databinding.stub.common.CLASS_INFOS
 import com.grab.databinding.stub.common.LAYOUT_FILES
 import com.grab.databinding.stub.common.PACKAGE_NAME
 import com.grab.databinding.stub.util.toLayoutBindingName
@@ -27,7 +27,6 @@ import dagger.Module
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.function.BiPredicate
 import java.util.zip.ZipFile
@@ -35,7 +34,6 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
-import kotlin.streams.asSequence
 
 /**
  * Store that is able to provide [TypeName] when given a layout name represented as simple string
@@ -99,13 +97,12 @@ constructor(
 
 /**
  * [LayoutTypeStore] implementation that searches layout type for the given layout in the
- * given dependencies' [classInfoZip] file.
+ * given dependencies' [classInfoDir] directory.
  *
  * The implementation lazily parses the files on demand and utilizes caching to avoid doing
  * duplicating work.
  *
- * @param classInfoZip The merged zip provided from Bazel containing binding classes json files
- *                     of immediate dependencies
+ * @param classInfoZips List of classInfo.zip from direct dependencies
  * @param bindingClassJsonParser [BindingClassJsonParser] implementation that will be used to parse
  *                     contents of each binding class json file.
  */
@@ -113,50 +110,62 @@ constructor(
 class DependenciesLayoutTypeStore
 @Inject
 constructor(
-    @Named(CLASS_INFO) private val classInfoZip: File,
-    private val bindingClassJsonParser: BindingClassJsonParser
+    @Named(CLASS_INFOS) private val classInfoZips: List<File>,
+    private val bindingClassJsonParser: BindingClassJsonParser,
 ) : LayoutTypeStore {
 
-    /**
-     * The directory where contents of [classInfoZip] will be extracted to.
-     */
-    private val classInfoDir by lazy(NONE) {
-        Paths.get("classInfos").let { Files.createDirectories(it) }
-    }
-
-    private val jsonFilePredicate = BiPredicate<Path, BasicFileAttributes> { path, attr ->
-        attr.isRegularFile && path.toString().endsWith(".json")
+    private val zipFilePredicate = BiPredicate<Path, BasicFileAttributes> { path, attr ->
+        attr.isRegularFile && path.toString().endsWith(".zip")
     }
 
     /**
-     * List of databinding binding class json files extracted on demand.
+     * The directory where the classInfo.zips will be extracted to
      */
-    private val bindingClassJsons: List<File> by lazy(NONE) {
-        ZipFile(classInfoZip).use { zip ->
-            zip.entries().asSequence().forEach { entry ->
-                zip.getInputStream(entry).use { input ->
-                    val extractedFile = File(classInfoDir.toFile(), entry.name).apply {
-                        parentFile?.mkdirs()
-                    }
-                    when {
-                        entry.isDirectory -> extractedFile.mkdirs()
-                        else -> extractedFile
-                            .outputStream()
-                            .use { output -> input.copyTo(output) }
+    var extractionDir: File = Files.createTempDirectory("temp").toFile()
+
+    /**
+     * Stores classInfo.zip extraction result. This is used to avoid doing repeat extractions when
+     * multiple request for extractions are received in [bindingClassJsonFiles]
+     * Key: name of the classInfo zip file
+     * Values: Binding class json files
+     */
+    private val classInfoZipContentCache = mutableMapOf<String, List<File>>()
+        .withDefault { emptyList() }
+
+    /**
+     * Extract the classInfo.zip to [extractionDir] and return list of binding class json files in
+     * it.
+     * If the zip was already extracted, then return the last known result directly
+     * from [classInfoZipContentCache]
+     *
+     * @param classInfoZip The class info zip that must be extracted
+     */
+    private fun bindingClassJsonFiles(classInfoZip: File): List<File> {
+        if (classInfoZipContentCache.containsKey(classInfoZip.name)) {
+            return classInfoZipContentCache.getValue(classInfoZip.name)
+        } else {
+            // Perform an extraction and cache the result
+            val jsonFiles = mutableListOf<File>()
+            ZipFile(classInfoZip).use { zip ->
+                zip.entries().asSequence().forEach { entry ->
+                    zip.getInputStream(entry).use { input ->
+                        val dir = File(extractionDir, classInfoZip.nameWithoutExtension)
+                        val extractedFile = File(dir, entry.name).apply { parentFile?.mkdirs() }
+                        when {
+                            entry.isDirectory -> extractedFile.mkdirs()
+                            else -> {
+                                extractedFile
+                                    .also { jsonFiles.add(it) }
+                                    .outputStream()
+                                    .use { output -> input.copyTo(output) }
+                            }
+                        }
                     }
                 }
             }
+            classInfoZipContentCache[classInfoZip.name] = jsonFiles
+            return jsonFiles
         }
-        Files
-            .find(
-                classInfoDir,
-                Int.MAX_VALUE,
-                jsonFilePredicate
-            ).map(Path::toFile)
-            .asSequence()
-            // Iterate files starting from lowest size to avoid parsing large files eagerly
-            .sortedBy { Files.size(it.toPath()) }
-            .toList()
     }
 
     /**
@@ -168,13 +177,14 @@ constructor(
         return if (layoutTypeCache.containsKey(layoutName)) {
             ClassName.bestGuess(layoutTypeCache[layoutName])
         } else {
-            // Iterate over each file, parsing and checking for the given layout name. If found, exit
-            // early and return the layout type.
-            bindingClassJsons
-                .forEach { jsonFile ->
-                    // We iterate over file by file to avoid eagerly parsing all of them and can exit
-                    // early on first occurrence. It is responsibility of `bindingClassJsonParser`
-                    // to cache duplicate requests
+            // Iterate over all classInfo.zip contents and return result from their json
+            classInfoZips.forEach {
+                bindingClassJsonFiles(classInfoZip = it).forEach { jsonFile ->
+                    // Iterate over each file, parsing and checking for the given layout name.
+                    //
+                    // If found, exit early and return the layout type.
+                    // We iterate over file by file to avoid eagerly parsing all of them.
+                    // It is responsibility of `bindingClassJsonParser` to cache duplicate requests
                     val parsedContents: Map<String, String> = bindingClassJsonParser.parse(jsonFile)
                     if (parsedContents.containsKey(layoutName)) {
                         // Cache the request for future access
@@ -182,6 +192,7 @@ constructor(
                         return ClassName.bestGuess(layoutTypeCache[layoutName])
                     }
                 }
+            }
             return null
         }
     }
