@@ -18,21 +18,11 @@ package com.grab.databinding.stub
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
+import com.grab.databinding.stub.common.DB_STUBS_OUTPUT
+import com.grab.databinding.stub.common.R_CLASS_OUTPUT
 import java.io.File
 
 class BindingStubCommand : CliktCommand() {
-
-    private val layoutFiles by option(
-        "-l",
-        "--layouts",
-        help = "List of layout files"
-    ).split(",").default(emptyList())
-
-    private val resources by option(
-        "-res",
-        "--resources",
-        help = "List of module res files"
-    ).split(",").default(emptyList())
 
     private val packageName by option(
         "-p",
@@ -40,64 +30,72 @@ class BindingStubCommand : CliktCommand() {
         help = "Package name of R class"
     ).required()
 
-    private val src by option(
-        "-s",
-        "--src",
-        help = "The source package of the given layout files to process"
-    ).required()
+    private val resources by option(
+        "-res",
+        "--resource-files",
+        help = "List of resource files to produce R.java from"
+    ).split(",").default(emptyList())
 
-    private val debug by option(
-        "-d",
-        "--debug",
-        help = "Run the binary in debug mode which takes absolute paths for layout files"
-    ).flag(default = false)
+    private val classInfos: List<String> by option(
+        "-ci",
+        "--class-infos",
+        help = "List of dependencies classInfo.zip files "
+    ).split(",").default(emptyList())
+
+    private val rTxts: List<String> by option(
+        "-rt",
+        "--r-txts",
+        help = "List of dependencies R.txt files"
+    ).split(",").default(emptyList())
 
     private val preferredOutputDir by option(
         "-o",
         "--output"
     ).convert { File(it) }
 
-    private val dependencyClassInfoZip: File by option(
-        "-cl",
-        "--class-info",
-        help = "Path to class-info.zip containing list of binding-clasess.json from direct dependencies"
+    private val rClassSrcJar by option(
+        "-r",
+        "--r-class-output",
+        help = "The R class srcjar location where the R class will be written to"
     ).convert { File(it) }.required()
 
-    private val rTxtZip by option(
-            "-r",
-            "--r-txt-deps",
-            help = "Zip of R txt files from deps aar"
+    private val stubClassJar by option(
+        "-s",
+        "--stubs-output",
+        help = "The stubs srcjar location where the generated stubs will be written to"
     ).convert { File(it) }.required()
 
     override fun run() {
-        val layoutFiles = layoutFiles.map { file ->
-            when {
-                debug -> File(file)
-                else -> File("$src/$file")
-            }
-        }
+        val resourcesFiles = resources.map { path -> File(path) }
+        val layoutFiles = resourcesFiles.filter { it.path.contains("/layout") }
 
-        val resourcesFiles = resources.map { file ->
-            when {
-                debug -> File(file)
-                else -> File("$src/$file")
-            }
-        }
+        val classInfoZip = classInfos.map { File(it) }
+        val depRTxts = rTxts.map { File(it) }
 
         DaggerBindingsStubComponent
             .factory()
             .create(
-                preferredOutputDir,
-                packageName,
-                layoutFiles,
-                resourcesFiles,
-                dependencyClassInfoZip,
-                rTxtZip
+                outputDir = preferredOutputDir,
+                packageName = packageName,
+                resourceFiles = resourcesFiles,
+                layoutFiles = layoutFiles,
+                classInfos = classInfoZip,
+                rTxts = depRTxts
             ).apply {
+                resToRClassGenerator().generate(packageName, resourcesFiles, depRTxts)
+
                 val layoutBindings = layoutBindingsParser().parse(packageName, layoutFiles)
-                resToRClassGenerator().generate(packageName, resourcesFiles, rTxtZip)
                 brClassGenerator().generate(packageName, layoutBindings)
                 bindingClassGenerator().generate(packageName, layoutBindings)
+
+                srcJarPackager.packageSrcJar(
+                    inputDir = File(R_CLASS_OUTPUT),
+                    outputFile = rClassSrcJar
+                )
+                srcJarPackager.packageSrcJar(
+                    inputDir = File(DB_STUBS_OUTPUT),
+                    outputFile = stubClassJar
+                )
             }
     }
 }

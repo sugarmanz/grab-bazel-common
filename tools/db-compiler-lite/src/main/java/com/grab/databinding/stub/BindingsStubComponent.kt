@@ -16,22 +16,16 @@
 
 package com.grab.databinding.stub
 
-import com.grab.databinding.stub.binding.generator.BindingClassGenerator
 import com.grab.databinding.stub.binding.BindingClassModule
+import com.grab.databinding.stub.binding.generator.BindingClassGenerator
 import com.grab.databinding.stub.binding.parser.BindingsParserModule
 import com.grab.databinding.stub.binding.parser.LayoutBindingsParser
-import com.grab.databinding.stub.rclass.generator.ResToRClassGenerator
-import com.grab.databinding.stub.rclass.di.ResToRClassModule
 import com.grab.databinding.stub.brclass.BrClassGenerator
 import com.grab.databinding.stub.brclass.BrClassModule
-import com.grab.databinding.stub.common.CLASS_INFO
-import com.grab.databinding.stub.common.LAYOUT_FILES
-import com.grab.databinding.stub.common.RES_FILES
-import com.grab.databinding.stub.common.OUTPUT
-import com.grab.databinding.stub.common.PACKAGE_NAME
-import com.grab.databinding.stub.common.R_TXT_ZIP
-import com.grab.databinding.stub.rclass.generator.RClassGenerator
+import com.grab.databinding.stub.common.*
+import com.grab.databinding.stub.rclass.di.ResToRClassModule
 import com.grab.databinding.stub.rclass.generator.RClassModule
+import com.grab.databinding.stub.rclass.generator.ResToRClassGenerator
 import dagger.BindsInstance
 import dagger.Component
 import java.io.File
@@ -45,7 +39,8 @@ import javax.inject.Singleton
         BindingClassModule::class,
         BrClassModule::class,
         BindingsParserModule::class,
-        ResToRClassModule::class
+        ResToRClassModule::class,
+        SrcJarPackageModule::class
     ]
 )
 interface BindingsStubComponent {
@@ -53,6 +48,7 @@ interface BindingsStubComponent {
     fun resToRClassGenerator(): ResToRClassGenerator
     fun bindingClassGenerator(): BindingClassGenerator
     fun brClassGenerator(): BrClassGenerator
+    val srcJarPackager: SrcJarPackager
 
     @Component.Factory
     interface Factory {
@@ -61,15 +57,18 @@ interface BindingsStubComponent {
          *
          * @param outputDir The output dir root where the files should be generated
          * @param packageName The package name of the target for which stubs are to be generated
-         * @param
+         * @param layoutFiles The list of all layout xmls
+         * @param resourceFiles The list of all resource files for compilation
+         * @param classInfos The list of databinding classInfo.zips from direct dependencies
+         * @param rTxts The list of R.txts from direct dependencies.
          */
         fun create(
             @BindsInstance @Named(OUTPUT) outputDir: File?,
             @BindsInstance @Named(PACKAGE_NAME) packageName: String,
             @BindsInstance @Named(LAYOUT_FILES) layoutFiles: List<File>,
-            @BindsInstance @Named(RES_FILES) resFiles: List<File>,
-            @BindsInstance @Named(CLASS_INFO) classInfoZip: File,
-            @BindsInstance @Named(R_TXT_ZIP) rTxtZip: File
+            @BindsInstance @Named(RES_FILES) resourceFiles: List<File>,
+            @BindsInstance @Named(CLASS_INFOS) classInfos: List<File>,
+            @BindsInstance @Named(R_TXTS) rTxts: List<File>
         ): BindingsStubComponent
     }
 }

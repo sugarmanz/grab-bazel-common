@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.grab.databinding.stub.common
+package com.grab.databinding.stub.util
 
 import com.grab.databinding.stub.rclass.parser.XmlTypeValues
 
@@ -37,6 +37,13 @@ interface ParentXmlEntry : XmlEntry {
     val children: List<String>
 }
 
-class SingleXmlEntry(override val tagName: String, override val type: XmlTypeValues) : XmlEntry
+class SingleXmlEntry(
+    override val tagName: String,
+    override val type: XmlTypeValues
+) : XmlEntry
 
-class ParentXmlEntryImpl(override val tagName: String, override val type: XmlTypeValues, override val children: List<String>) : ParentXmlEntry
+class ParentXmlEntryImpl(
+    override val tagName: String,
+    override val type: XmlTypeValues,
+    override val children: List<String>
+) : ParentXmlEntry
