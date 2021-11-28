@@ -58,12 +58,11 @@ class ResToRClassGeneratorImpl constructor(
         val resourcesStore = resToRParser.parse(resources, rTxts.flatMap(File::readLines))
 
         val subclasses = mutableListOf<TypeSpec>()
-        resourcesStore.keys.forEach { key ->
+        resourcesStore.keys.forEach { rClassType ->
             val fields = mutableListOf<FieldSpec>()
 
-            resourcesStore[key]
-                ?.asSequence()
-                ?.distinctBy { it.name }
+            resourcesStore[rClassType]
+                ?.toSortedSet { a, b -> a.name.compareTo(b.name) }
                 ?.forEach {
                     val type = when {
                         it.isArray -> ArrayTypeName.of(INT)
@@ -82,7 +81,7 @@ class ResToRClassGeneratorImpl constructor(
                 }
 
             subclasses.add(
-                TypeSpec.classBuilder(key.entry)
+                TypeSpec.classBuilder(rClassType.entry)
                     .addFields(fields)
                     .addModifiers(PUBLIC, STATIC, FINAL)
                     .build()
