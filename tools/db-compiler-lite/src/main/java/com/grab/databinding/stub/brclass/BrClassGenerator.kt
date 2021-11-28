@@ -70,6 +70,7 @@ constructor(
             .map { it.rawName }
             .distinct()
             .filter(String::isNotEmpty)
+            .sorted()
             .map { name ->
                 FieldSpec
                     .builder(INT, name)
