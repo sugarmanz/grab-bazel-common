@@ -141,15 +141,19 @@ constructor(
      * @param classInfoZip The class info zip that must be extracted
      */
     private fun bindingClassJsonFiles(classInfoZip: File): List<File> {
-        if (classInfoZipContentCache.containsKey(classInfoZip.name)) {
-            return classInfoZipContentCache.getValue(classInfoZip.name)
+        val cacheKey = classInfoZip.path
+        if (classInfoZipContentCache.containsKey(cacheKey)) {
+            return classInfoZipContentCache.getValue(cacheKey)
         } else {
             // Perform an extraction and cache the result
             val jsonFiles = mutableListOf<File>()
             ZipFile(classInfoZip).use { zip ->
                 zip.entries().asSequence().forEach { entry ->
                     zip.getInputStream(entry).use { input ->
-                        val dir = File(extractionDir, classInfoZip.nameWithoutExtension)
+                        val dir = File(
+                            extractionDir,
+                            classInfoZip.parentFile?.name ?: error("$classInfoZip does not exist")
+                        )
                         val extractedFile = File(dir, entry.name).apply { parentFile?.mkdirs() }
                         when {
                             entry.isDirectory -> extractedFile.mkdirs()
@@ -163,7 +167,7 @@ constructor(
                     }
                 }
             }
-            classInfoZipContentCache[classInfoZip.name] = jsonFiles
+            classInfoZipContentCache[cacheKey] = jsonFiles
             return jsonFiles
         }
     }

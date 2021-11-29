@@ -128,7 +128,7 @@ constructor(
                     bindingClassName,
                     bindings,
                     layoutBinding.bindables
-                )
+                ).sortedBy(MethodSpec::name)
 
                 TypeSpec.classBuilder(bindingClassName)
                     .superclass(viewDataBinding)
@@ -159,6 +159,7 @@ constructor(
 
     private fun buildFields(bindings: List<Binding>, bindables: List<Binding>): List<FieldSpec> {
         val bindingFields = bindings
+            .asSequence()
             .map { binding ->
                 FieldSpec.builder(binding.typeName, binding.name)
                     .addAnnotation(androidNonNull)
@@ -166,13 +167,14 @@ constructor(
                     .build()
             }
         val bindableFields = bindables
+            .asSequence()
             .map { bindable ->
                 FieldSpec.builder(bindable.typeName, "m" + bindable.name.capitalize())
                     .addModifiers(PROTECTED)
                     .addAnnotation(bindableAnnotation)
                     .build()
             }
-        return bindingFields + bindableFields
+        return (bindingFields + bindableFields).sortedBy(FieldSpec::name).toList()
     }
 
     private fun buildMethods(
@@ -234,7 +236,7 @@ constructor(
             .addParameter(objectClass, COMPONENT)
             .build()
             .let(::add)
-    }.toList()
+    }
 
     private fun buildBindMethods(
         bindingClassName: ClassName

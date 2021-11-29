@@ -21,7 +21,6 @@ class DependenciesLayoutTypeStoreTest : BaseBindingStubTest() {
     @Before
     fun setup() {
         val classInfoDir = temporaryFolder.newFolder("classInfoDir")
-        val extractionDir = temporaryFolder.newFolder("extracted")
         dependenciesLayoutTypeStore = DependenciesLayoutTypeStore(
             classInfoZips = listOf(
                 createClassInfoZip(classInfoDir, "clock", DEFAULT_JSON_CONTENT),
@@ -29,20 +28,24 @@ class DependenciesLayoutTypeStoreTest : BaseBindingStubTest() {
             ),
             bindingClassJsonParser = CachingBindingClassJsonParser()
         )
-        dependenciesLayoutTypeStore.extractionDir = extractionDir
+        dependenciesLayoutTypeStore.extractionDir = temporaryFolder.newFolder("extracted")
 
     }
 
     /**
      * Create a classInfo.zip in `temporaryFolder` root with the name `$prefix_classInfo.zip` with
      * `jsonContents` for binding class json.
+     *
+     * @param directory The temporary directory where fake classInfos will be written to.
+     * @param module The module name used to differentiate multiple classInfos.
+     * @param jsonContents The contents of binding class jsons
      */
-    private fun createClassInfoZip(directory: File, prefix: String, jsonContents: String): File {
+    private fun createClassInfoZip(directory: File, module: String, jsonContents: String): File {
         val bindingClassJsonName = "com.grab.playground_binding_classes"
         val bindingClassJson = File
             .createTempFile(bindingClassJsonName, ".json")
             .apply { writeText(jsonContents) }
-        val output = File(directory, "${prefix}_classInfo.zip").apply {
+        val output = File(File(directory, module), "classInfo.zip").apply {
             parentFile?.mkdirs()
             createNewFile()
         }

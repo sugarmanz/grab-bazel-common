@@ -22,21 +22,43 @@ Outputs:
 def _to_path(f):
     return f.path
 
+def _is_direct(dep, tags):
+    """
+    Given tags containing info about direct dependencies in format @direct//, returns true if given
+    label is a direct dependency and false otherwise
+
+    Args:
+      dep: Package name to check for
+      tags: Tags passed to the rule
+    """
+    if (len(tags) == 0):
+        return True
+    for tag in tags:
+        if tag.startswith("@direct//"):
+            if dep == (tag[9:]):
+                return True
+    for tag in tags:
+        if tag.startswith("@direct//"):
+            return False
+    return True
+
 def _databinding_stubs_impl(ctx):
     deps = ctx.attr.deps
+    tags = ctx.attr.tags
     custom_package = ctx.attr.custom_package
-    class_infos = []
+    class_infos = {}
     r_txts = []
 
     for target in deps:
         if (DataBindingV2Info in target):
-            data_binding_info = target[DataBindingV2Info]
-            ci = data_binding_info.class_infos.to_list()
-            if len(ci) > 0:
-                class_infos.append(ci[0])
+            for class_info in target[DataBindingV2Info].class_infos.to_list():
+                if _is_direct(class_info.owner.package, tags):
+                    class_infos[class_info.path] = class_info
         if (AndroidResourcesInfo in target):
             r_txts.append(target[AndroidResourcesInfo].compiletime_r_txt)
 
+    # Filter duplicates
+    class_infos = list(class_infos.values())
     # Args for compiler
     args = ctx.actions.args()
     args.add("--package", custom_package)
