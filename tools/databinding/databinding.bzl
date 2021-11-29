@@ -13,7 +13,6 @@ _DATABINDING_DEPS = [
     "@maven//:androidx_annotation_annotation",
 ]
 
-_stub_compiler_target = "@grab_bazel_common//tools/db-compiler-lite:db-compiler-lite"
 _zipper = "@bazel_tools//tools/zip:zipper"
 
 def _filter_deps(deps):
@@ -77,6 +76,7 @@ def kt_db_android_library(
         name = databinding_stubs_target,
         custom_package = custom_package,
         resource_files = resource_files,
+        tags = tags,
         deps = deps + _DATABINDING_DEPS,
     )
     binding_classes_sources = databinding_stubs_target + "_binding.srcjar"
