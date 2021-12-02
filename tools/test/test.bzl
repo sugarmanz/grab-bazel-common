@@ -1,5 +1,6 @@
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_library")
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_jvm_test")
+load(":runtime_resources.bzl", "runtime_resources")
 
 def grab_android_local_test(
         name,
@@ -30,13 +31,20 @@ def grab_android_local_test(
         and all valid arguments that you want to pass to the android_local_test target
         associates: associates target to allow access to internal members from the main Kotlin target
     """
+    
+    runtime_resources_name = name + "-runtime-resources"
+    runtime_resources(
+        name = runtime_resources_name,
+        deps = deps,
+    )
+
     _gen_test_targets(
         test_compile_rule_type = kt_jvm_library,
         test_runner_rule_type = kt_jvm_test,
         name = name,
         srcs = srcs,
         associates = associates,
-        deps = deps,
+        deps = deps + [":" + runtime_resources_name],
         runner_associates = False,
         test_compile_deps = [
             "@grab_bazel_common//tools/test:mockable-android-jar",
