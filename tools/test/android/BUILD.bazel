@@ -6,6 +6,9 @@ kt_android_library(
     srcs = glob([
         "src/main/java/**/*.kt",
     ]),
+    deps = [
+        "@maven//:com_google_android_material_material",
+    ],
 )
 
 grab_android_local_test(
@@ -17,6 +20,7 @@ grab_android_local_test(
         ":grab_android_local_test_lib_kt",
     ],
     deps = [
+        ":grab_android_local_test_lib",
         "@maven//:junit_junit",
     ],
 )
