@@ -21,4 +21,10 @@ class SimpleActivityTest {
         assertEquals(null, activity.createAttributionContext("any"))
         assertEquals(false, activity.isDestroyed)
     }
+
+    @Test
+    fun `assert resource values`() {
+        val activity = TestActivity()
+        assertEquals(activity.material_res, com.google.android.material.R.color.material_blue_grey_950)
+    }
 }

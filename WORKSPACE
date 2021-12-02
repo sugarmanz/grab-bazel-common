@@ -35,6 +35,7 @@ maven_install(
         "androidx.databinding:databinding-runtime:3.4.2",
         "androidx.annotation:annotation:1.1.0",
         "com.github.tschuchortdev:kotlin-compile-testing:1.3.1",
+        "com.google.android.material:material:1.2.1",
         "javax.inject:javax.inject:1",
         "junit:junit:4.13",
     ],
