@@ -82,14 +82,14 @@ def kt_db_android_library(
     binding_classes_sources = databinding_stubs_target + "_binding.srcjar"
 
     r_classes_sources = databinding_stubs_target + "_r.srcjar"
-    r_classes = name + "-r-classes"
+    r_classes = "r-classes"
     # R classes are not meant to be packaged into the binary, so export it as java_library but don't
     # link it.
-    #native.java_library(
-    #    name = r_classes,
-    #    srcs = [r_classes_sources],
-    #    # neverlink = 1,  # Use the R classes only for compiling and not at runtime.
-    #)
+    native.java_library(
+       name = r_classes,
+       srcs = [r_classes_sources],
+       neverlink = 1,  # Use the R classes only for compiling and not at runtime.
+    )
 
     # Create an intermediate target for compiling all Kotlin classes used in Databinding
     kotlin_target = name + "-kotlin"
@@ -108,9 +108,9 @@ def kt_db_android_library(
 
         kt_jvm_library(
             name = kotlin_target,
-            srcs = srcs + [binding_classes_sources] + [r_classes_sources],
+            srcs = srcs + [binding_classes_sources],
             plugins = plugins,
-            deps = deps + _DATABINDING_DEPS + [
+            deps = deps + _DATABINDING_DEPS + [r_classes] + [
                 "@grab_bazel_common//tools/binding-adapter-bridge:binding-adapter-bridge",
                 "@grab_bazel_common//tools/android:android_sdk",
             ],
