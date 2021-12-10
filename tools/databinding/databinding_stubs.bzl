@@ -59,6 +59,7 @@ def _databinding_stubs_impl(ctx):
 
     # Filter duplicates
     class_infos = list(class_infos.values())
+
     # Args for compiler
     args = ctx.actions.args()
     args.add("--package", custom_package)

@@ -20,7 +20,7 @@ def grab_android_local_test(
     testOptions.unitTests.returnDefaultValues = true feature.
 
     The macro assumes Kotlin is used and will use rules_kotlin's kt_jvm_library to compile test
-    sources with mocked android.jar on the classpath. The test will be executed with kt_jvm_test.
+    sources with mocked android.jar on the classpath. The test will be executed with java_test.
 
     Executing via Robolectric is currently not supported.
 
@@ -31,7 +31,7 @@ def grab_android_local_test(
         and all valid arguments that you want to pass to the android_local_test target
         associates: associates target to allow access to internal members from the main Kotlin target
     """
-    
+
     runtime_resources_name = name + "-runtime-resources"
     runtime_resources(
         name = runtime_resources_name,
@@ -40,16 +40,15 @@ def grab_android_local_test(
 
     _gen_test_targets(
         test_compile_rule_type = kt_jvm_library,
-        test_runner_rule_type = kt_jvm_test,
+        test_runner_rule_type = native.java_test,
         name = name,
         srcs = srcs,
         associates = associates,
         deps = deps + [":" + runtime_resources_name],
-        runner_associates = False,
         test_compile_deps = [
             "@grab_bazel_common//tools/test:mockable-android-jar",
         ],
-        test_runner_deps = [
+        test_runtime_deps = [
             "@grab_bazel_common//tools/test:mockable-android-jar",
             "@com_github_jetbrains_kotlin//:kotlin-reflect",
         ],
@@ -78,14 +77,13 @@ def grab_kt_jvm_test(
         """
     _gen_test_targets(
         test_compile_rule_type = kt_jvm_library,
-        test_runner_rule_type = kt_jvm_test,
+        test_runner_rule_type = native.java_test,
         name = name,
         srcs = srcs,
         associates = associates,
         deps = deps,
-        test_compile_deps = [
-        ],
-        test_runner_deps = [
+        test_compile_deps = [],
+        test_runtime_deps = [
             "@com_github_jetbrains_kotlin//:kotlin-reflect",
         ],
         **kwargs
@@ -98,8 +96,7 @@ def _gen_test_targets(
         srcs,
         deps,
         test_compile_deps,
-        test_runner_deps,
-        runner_associates = True,
+        test_runtime_deps,
         associates = [],
         **kwargs):
     """A macro to auto generate and compile target and runner targets for tests.
@@ -121,15 +118,12 @@ def _gen_test_targets(
     supported in runner phase.
     deps: All dependencies required for building test sources
     test_compile_deps: Any dependencies required for the build target.
-    test_runner_deps: Any dependencies required for the test runner target.
-    runner_associates: If set, will forward associates flag to the runner target.
+    test_runtime_deps: Any dependencies required for the test runner target.
     associates: The list of associate targets to allow access to internal members.
     """
-    jvm_lib_name = name + "_build"
-    trigger = "@grab_bazel_common//tools/test/internal:_empty_kotlin"
-
+    test_build_target = name + "_build"
     test_compile_rule_type(
-        name = jvm_lib_name,
+        name = test_build_target,
         srcs = srcs,
         deps = test_compile_deps + deps,
         associates = associates,
@@ -156,33 +150,17 @@ def _gen_test_targets(
                 test_target_name = test_class.replace(".", "_")
                 test_names.append(test_target_name)
 
-                if runner_associates:
-                    test_runner_rule_type(
-                        name = test_target_name,
-                        srcs = [trigger],
-                        test_class = test_class,
-                        deps = test_runner_deps + [
-                            ":" + jvm_lib_name,
-                        ],
-                        associates = associates,
-                        jvm_flags = [
-                            "-Xverify:none",
-                        ],
-                        **kwargs
-                    )
-                else:
-                    test_runner_rule_type(
-                        name = test_class.replace(".", "_"),
-                        srcs = [trigger],
-                        test_class = test_class,
-                        deps = test_runner_deps + [
-                            ":" + jvm_lib_name,
-                        ],
-                        jvm_flags = [
-                            "-Xverify:none",
-                        ],
-                        **kwargs
-                    )
+                test_runner_rule_type(
+                    name = test_class.replace(".", "_"),
+                    test_class = test_class,
+                    runtime_deps = test_runtime_deps + [
+                        ":" + test_build_target,
+                    ],
+                    jvm_flags = [
+                        "-Xverify:none",
+                    ],
+                    **kwargs
+                )
 
     if len(test_names) >= 0:
         native.test_suite(
