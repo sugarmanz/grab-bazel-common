@@ -83,12 +83,13 @@ def kt_db_android_library(
 
     r_classes_sources = databinding_stubs_target + "_r.srcjar"
     r_classes = "r-classes"
+
     # R classes are not meant to be packaged into the binary, so export it as java_library but don't
     # link it.
     native.java_library(
-       name = r_classes,
-       srcs = [r_classes_sources],
-       neverlink = 1,  # Use the R classes only for compiling and not at runtime.
+        name = r_classes,
+        srcs = [r_classes_sources],
+        neverlink = 1,  # Use the R classes only for compiling and not at runtime.
     )
 
     # Create an intermediate target for compiling all Kotlin classes used in Databinding

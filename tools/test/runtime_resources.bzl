@@ -24,7 +24,7 @@ def _runtime_resources_impl(ctx):
     merged_java_infos = java_common.merge(resources_java_infos)
 
     return [
-        merged_java_infos
+        merged_java_infos,
     ]
 
 runtime_resources = rule(
