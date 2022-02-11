@@ -62,7 +62,7 @@ class ResToRDepsParserTest : BaseBindingStubTest() {
 
         val result = resToRParser.parse(
             emptyList(),
-            contextRTxts.lines()
+            listOf(temporaryFolder.newFile("R.txt").apply { writeText(contextRTxts) })
         ) as MutableMap<Type, MutableSet<RFieldEntry>>
 
         val expectedValues =
@@ -118,7 +118,7 @@ class ResToRDepsParserTest : BaseBindingStubTest() {
 
         val result = resToRParser.parse(
             listTemp,
-            contextRTxts.lines()
+            listOf(temporaryFolder.newFile("R.txt").apply { writeText(contextRTxts) })
         ) as MutableMap<Type, MutableSet<RFieldEntry>>
 
         val expectedIDs = setOf(

@@ -55,7 +55,7 @@ class ResToRClassGeneratorImpl constructor(
 ) : ResToRClassGenerator {
 
     override fun generate(packageName: String, resources: List<File>, rTxts: List<File>) {
-        val resourcesStore = resToRParser.parse(resources, rTxts.flatMap(File::readLines))
+        val resourcesStore = resToRParser.parse(resources, rTxts)
 
         val subclasses = mutableListOf<TypeSpec>()
         resourcesStore.keys.forEach { rClassType ->
