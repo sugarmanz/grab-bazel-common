@@ -189,7 +189,7 @@ class ResToRValueParserTest : BaseBindingStubTest() {
 
         val result = resToRParser.parse(
             listTemp,
-            emptyList<String>()
+            emptyList()
         ) as MutableMap<Type, MutableSet<RFieldEntry>>
         val expectedAttrs = setOf(RFieldEntry(Type.ATTR, "value", value))
 

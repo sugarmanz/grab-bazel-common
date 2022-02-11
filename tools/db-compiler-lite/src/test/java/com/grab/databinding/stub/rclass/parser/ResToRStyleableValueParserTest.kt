@@ -56,7 +56,7 @@ class ResToRStyleableValueParserTest : BaseBindingStubTest() {
 
         val result = resToRParser.parse(
             listTemp,
-            emptyList<String>()
+            emptyList()
         ) as MutableMap<Type, MutableSet<RFieldEntry>>
         val parentValue = "{ 0,0,0 }"
         val exptectedStyleable = setOf(
