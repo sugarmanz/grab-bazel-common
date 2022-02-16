@@ -123,63 +123,57 @@ constructor(
         layoutFiles: List<File>
     ): List<LayoutBindingData> {
         return layoutFiles.map { layoutFile ->
-            layoutFile.inputStream().buffered().use { inputStream ->
-                xpp.setInput(inputStream, null)
-                val bindingClassName = layoutFile.bindingName
-                val bindings = mutableSetOf<Binding>()
-                val bindables = mutableSetOf<Binding>()
+            xpp.setInput(layoutFile.inputStream(), null)
+            val bindingClassName = layoutFile.bindingName
+            val bindings = mutableSetOf<Binding>()
+            val bindables = mutableSetOf<Binding>()
 
-                val importedTypes: ImportedTypes = mutableMapOf()
+            val importedTypes: ImportedTypes = mutableMapOf()
 
-                xpp.events()
-                    .asSequence()
-                    .forEach { event: Int ->
-                        if (event == START_TAG) {
-                            when (val nodeName = xpp.name) {
-                                IMPORT -> {
-                                    val attributes = xpp.attributesNameValue()
-                                        .withDefault { error("Could not parse: $it") }
-                                    val typeFqcn = attributes.getValue(TYPE)
-                                    val typeName = attributes[ALIAS] ?: typeFqcn.split(".").last()
-                                    importedTypes[typeName] = ClassName.bestGuess(typeFqcn)
-                                }
-                                VARIABLE -> {
-                                    val attributes = xpp.attributesNameValue()
-                                        .withDefault { error("Could not parse: $it") }
-                                    bindables.add(
-                                        Binding(
-                                            rawName = attributes.getValue(NAME),
-                                            typeName = parseBindableTypeName(
-                                                typeName = attributes.getValue(TYPE),
-                                                importedTypes = importedTypes
-                                            ),
-                                            bindingType = BindingType.Variable
-                                        )
+            xpp.events()
+                .asSequence()
+                .forEach { event: Int ->
+                    if (event == START_TAG) {
+                        when (val nodeName = xpp.name) {
+                            IMPORT -> {
+                                val attributes = xpp.attributesNameValue()
+                                    .withDefault { error("Could not parse: $it") }
+                                val typeFqcn = attributes.getValue(TYPE)
+                                val typeName = attributes[ALIAS] ?: typeFqcn.split(".").last()
+                                importedTypes[typeName] = ClassName.bestGuess(typeFqcn)
+                            }
+                            VARIABLE -> {
+                                val attributes = xpp.attributesNameValue()
+                                    .withDefault { error("Could not parse: $it") }
+                                bindables.add(
+                                    Binding(
+                                        rawName = attributes.getValue(NAME),
+                                        typeName = parseBindableTypeName(
+                                            typeName = attributes.getValue(TYPE),
+                                            importedTypes = importedTypes
+                                        ),
+                                        bindingType = BindingType.Variable
                                     )
-                                }
-                                else -> {
-                                    val attributes = xpp.attributesNameValue()
-                                        .filterKeys { it == ANDROID_ID || it == LAYOUT }
-                                        .withDefault {
-                                            error("Could not parse: $it in $packageName:$layoutFile")
-                                        }
+                                )
+                            }
+                            else -> {
+                                val attributes = xpp.attributesNameValue()
+                                    .filterKeys { it == ANDROID_ID || it == LAYOUT }
+                                    .withDefault {
+                                        error("Could not parse: $it in $packageName:$layoutFile")
+                                    }
 
-                                    parseBinding(
-                                        packageName,
-                                        nodeName,
-                                        attributes
-                                    )?.let(bindings::add)
-                                }
+                                parseBinding(packageName, nodeName, attributes)?.let(bindings::add)
                             }
                         }
                     }
-                LayoutBindingData(
-                    bindingClassName,
-                    layoutFile,
-                    bindings.toList(),
-                    bindables.toList()
-                )
-            }
+                }
+            LayoutBindingData(
+                bindingClassName,
+                layoutFile,
+                bindings.toList(),
+                bindables.toList()
+            )
         }.distinctBy(LayoutBindingData::layoutName)
     }
 
