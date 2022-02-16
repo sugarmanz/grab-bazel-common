@@ -29,7 +29,7 @@ import javax.inject.Singleton
 interface ResToRParser {
     fun parse(
         resources: List<File>,
-        dependenciesRTxts: List<File>
+        dependenciesRTxtContent: List<String>
     ): Map<Type, MutableSet<RFieldEntry>>
 }
 
@@ -54,20 +54,20 @@ class ResToRParserImpl constructor(
 
     override fun parse(
         resources: List<File>,
-        dependenciesRTxts: List<File>
+        dependenciesRTxtContent: List<String>
     ): Map<Type, MutableSet<RFieldEntry>> {
         resources.forEach {
             collectRes(it)
         }
-        dependenciesRTxts.forEach { rTxtFile ->
-            rTxtFile.forEachLine { parseContent(it) }
+        dependenciesRTxtContent.forEach {
+            parseContent(it)
         }
         return this.resources
     }
 
-    private fun parseContent(rTxtEntry: String) {
-        val tokens = rTxtEntry.split(" ").map(String::trim)
-        val isArray = rTxtEntry.contains("[]")
+    private fun parseContent(content: String) {
+        val tokens = content.split(" ").map(String::trim)
+        val isArray = content.contains("[]")
         val name = tokens[NAME_INDEX]
 
         val id = if (!isArray) {
@@ -105,7 +105,7 @@ class ResToRParserImpl constructor(
             .asSequence()
             .filter { xpp.attributesNameValue().isNotEmpty() }
             .filter { xpp.attributesNameValue().contains(NAME) }
-            .forEach { _ ->
+            .forEach {
                 val name = xpp.attributeName()
 
                 val type = enumTypeValue(xpp.name).let {
