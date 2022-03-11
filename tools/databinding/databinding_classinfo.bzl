@@ -66,7 +66,7 @@ direct_class_infos = rule(
         "deps": attr.label_list(),
         "_zipper": attr.label(
             default = Label("@bazel_tools//tools/zip:zipper"),
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
     },
