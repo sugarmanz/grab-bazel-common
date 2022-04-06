@@ -111,10 +111,12 @@ constructor(
     }
 
     override fun generate(packageName: String, layoutBindings: List<LayoutBindingData>) {
+        println("generating stubs for $packageName: $layoutBindings")
         // By default we generate android.databinding.DataBindingComponent
         generateDataBindingComponentInterface()
         calculateBindingsToGenerate(layoutBindings)
             .forEach { layoutBinding ->
+                println("generating stub for $layoutBinding")
                 val bindingClass = layoutBinding.layoutName
                 val genPackageName = "$packageName.databinding"
                 val bindingClassName = ClassName.get(genPackageName, bindingClass)
