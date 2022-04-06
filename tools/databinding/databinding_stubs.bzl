@@ -92,7 +92,8 @@ def _databinding_stubs_impl(ctx):
     args.add("--r-class-output", ctx.outputs.r_class_jar)
     args.add("--stubs-output", ctx.outputs.binding_jar)
     
-    print("running stubs compiler with: " + args)
+    print("running stubs compiler with: ")
+    print(args)
 
     mnemonic = "DatabindingStubs"
     ctx.actions.run(
