@@ -103,11 +103,12 @@ constructor(
 
         return (layoutBindings
             .asSequence()
+            .also { println(it.toList()) }
             .filter { layoutBinding ->
                 val shouldFilter = layoutBinding
                     .file
                     .useLines { lines -> lines.any { it.contains("<layout") } }
-                if (shouldFilter) println("filtering out $layoutBinding")
+                println("filtering $layoutBinding: $shouldFilter")
                 shouldFilter
             } + additionalLayoutBindings).distinct()
     }
