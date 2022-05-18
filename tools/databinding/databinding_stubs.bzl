@@ -54,6 +54,7 @@ def _databinding_stubs_impl(ctx):
     deps = ctx.attr.deps
     tags = ctx.attr.tags
     custom_package = ctx.attr.custom_package
+    non_transitive_r_class = ctx.attr.non_transitive_r_class
     class_infos = {}
     r_txts = []
 
@@ -62,7 +63,7 @@ def _databinding_stubs_impl(ctx):
             for class_info in _list_or_depset_to_list(target[DataBindingV2Info].class_infos):
                 if _is_direct(class_info.owner.package, tags):
                     class_infos[class_info.path] = class_info
-        if (AndroidResourcesInfo in target):
+        if (AndroidResourcesInfo in target and not non_transitive_r_class):
             r_txts.append(target[AndroidResourcesInfo].compiletime_r_txt)
 
     # Filter duplicates
@@ -91,6 +92,8 @@ def _databinding_stubs_impl(ctx):
     )
     args.add("--r-class-output", ctx.outputs.r_class_jar)
     args.add("--stubs-output", ctx.outputs.binding_jar)
+    if non_transitive_r_class:
+        args.add("--non-transitive-r-class")
 
     mnemonic = "DatabindingStubs"
     ctx.actions.run(
@@ -123,6 +126,7 @@ databinding_stubs = rule(
             executable = True,
             cfg = "exec",
         ),
+        "non_transitive_r_class": attr.bool(default = False),
     },
     outputs = dict(
         r_class_jar = "%{name}_r.srcjar",
