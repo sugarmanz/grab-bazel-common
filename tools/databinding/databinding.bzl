@@ -118,7 +118,7 @@ def kt_db_android_library(
                 "@grab_bazel_common//tools/binding-adapter-bridge:binding-adapter-bridge",
                 "@grab_bazel_common//tools/android:android_sdk",
             ],
-            tags = tags,
+            # tags = tags,
         )
         kotlin_targets.append(kotlin_target)
 
