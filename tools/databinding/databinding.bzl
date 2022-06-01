@@ -78,7 +78,6 @@ def kt_db_android_library(
         name = databinding_stubs_target,
         custom_package = custom_package,
         resource_files = resource_files,
-        tags = tags,
         deps = deps + _DATABINDING_DEPS,
         non_transitive_r_class = select({
             "@grab_bazel_common//:non_transitive_r_class": True,
@@ -123,7 +122,6 @@ def kt_db_android_library(
                 "@grab_bazel_common//tools/binding-adapter-bridge:binding-adapter-bridge",
                 "@grab_bazel_common//tools/android:android_sdk",
             ],
-            tags = tags,
         )
         kotlin_targets.append(kotlin_target)
 
