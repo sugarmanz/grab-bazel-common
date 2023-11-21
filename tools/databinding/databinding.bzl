@@ -200,7 +200,7 @@ def kt_db_android_library(
         # A's databinding generated code can depend on B's kotlin code.
         # See: https://blog.bazel.build/2017/06/28/sjd-unused_deps.html
         # Can be also overcome by --strict_java_deps=warn
-        exports = kotlin_targets,
+        exports = kotlin_targets + [databinding_mapper],
     )
 
     # Package aar correctly for Gradle builds.
