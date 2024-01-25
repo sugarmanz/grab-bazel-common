@@ -136,13 +136,14 @@ def _databinding_aar_impl(ctx):
     dep = ctx.attr.android_library
     android_lib_name = dep.label.name
     custom_package = dep.android.java_package
+    java_info = ctx.attr.kotlin_library[JavaInfo]
 
     data_binding_info = dep[DataBindingV2Info]
 
     # Register action to copy setter stores
     setter_store_files = []
-    if len(data_binding_info.setter_stores) > 0:
-        setter_store_input_file = data_binding_info.setter_stores[0]
+    if len(data_binding_info.setter_stores.to_list()) > 0:
+        setter_store_input_file = data_binding_info.setter_stores.to_list()[0]
         setter_store_output_file = ctx.actions.declare_file(_DATABINDING + "/" + setter_store_input_file.basename)
         copy_file_action(
             ctx,
@@ -167,8 +168,8 @@ def _databinding_aar_impl(ctx):
 
     # Register action to copy binding_classes.json
     binding_classes_files = []
-    if len(data_binding_info.class_infos) > 0:
-        class_info_zip_file = data_binding_info.class_infos[0]
+    if len(data_binding_info.class_infos.to_list()) > 0:
+        class_info_zip_file = data_binding_info.class_infos.to_list()[0]
         binding_classes_json_file = ctx.actions.declare_file(custom_package + "-binding_classes.json")
         extract_binding_classes(ctx, class_info_zip_file, binding_classes_json_file)
         binding_classes_files.append(binding_classes_json_file)
@@ -184,7 +185,7 @@ def _databinding_aar_impl(ctx):
     _clean_stubs_from_kotlin_jar(
         ctx,
         custom_package,
-        ctx.file.kotlin_jar,
+        java_info.runtime_output_jars[0],
         cleaned_kotlin_jar,
     )
 
@@ -202,13 +203,23 @@ def _databinding_aar_impl(ctx):
 
     return [DefaultInfo(
         files = depset([ctx.outputs.aar]),
-    )]
+    ), AndroidLibraryAarInfo(
+        aar = ctx.outputs.aar,
+        manifest = ctx.outputs.aar,
+        aars_from_deps = [],
+        defines_local_resources = True,
+    ), java_info]
 
 databinding_aar = rule(
     implementation = _databinding_aar_impl,
     attrs = {
         "android_library": attr.label(),
-        "kotlin_jar": attr.label(allow_single_file = [".jar"]),
+        "kotlin_library": attr.label(),
+        # These exist only to satisfy the maven_publish aspect
+        # requirements for aggregating transitive deps
+        "deps": attr.label_list(),
+        "exports": attr.label_list(),
     },
     outputs = {"aar": "%{name}.aar"},
+    provides = [AndroidLibraryAarInfo, JavaInfo],
 )

@@ -1,8 +1,6 @@
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_android_library")
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load(":databinding_stubs.bzl", "databinding_stubs")
-load("@grab_bazel_common//tools/java:java_library_no_header.bzl", "java_library_no_header")
-# load(":databinding_aar.bzl", "databinding_aar")
+load(":databinding_aar.bzl", "databinding_aar")
 
 # TODO(arun) Replace with configurable maven targets
 _DATABINDING_DEPS = [
@@ -35,6 +33,7 @@ def kt_db_android_library(
         assets = None,
         assets_dir = None,
         deps = [],
+        exports = [],
         plugins = [],
         visibility = None,
         tags = []):
@@ -94,7 +93,7 @@ def kt_db_android_library(
     native.java_library(
         name = r_classes,
         srcs = [r_classes_sources],
-        tags = tags,
+        # tags = tags,
         neverlink = 1,  # Use the R classes only for compiling and not at runtime.
     )
 
@@ -122,6 +121,7 @@ def kt_db_android_library(
                 "@grab_bazel_common//tools/binding-adapter-bridge:binding-adapter-bridge",
                 "@grab_bazel_common//tools/android:android_sdk",
             ],
+            exports = exports,
         )
         kotlin_targets.append(kotlin_target)
 
@@ -141,7 +141,7 @@ def kt_db_android_library(
             srcs = [":" + kotlin_target + "-sources.jar"],
             outs = [kotlin_target + "_kt-sources.srcjar"],
             tools = [_zipper],
-            tags = tags,
+            # tags = tags,
             message = "Generating binding adapter stubs " + name,
             cmd = """
             TEMP="adapter-sources"
@@ -160,7 +160,7 @@ def kt_db_android_library(
     native.java_library(
         name = databinding_mapper,
         srcs = [databinding_stubs_target + "_mapper.srcjar"],
-        tags = tags,
+        # tags = tags,
         neverlink = 1,  # Use only in the compile classpath
         deps = _DATABINDING_DEPS + [
             "@grab_bazel_common//tools/android:android_sdk",
@@ -182,7 +182,7 @@ def kt_db_android_library(
         assets_dir = assets_dir,
         visibility = visibility,
         manifest = manifest,
-        tags = tags,
+        # tags = tags,
         deps = kotlin_targets + _filter_deps(deps) + _DATABINDING_DEPS + [databinding_mapper],
         # Export the Kotlin target so that other databinding modules that depend on this module
         # can use classes defined in this module in their databinding generated classes.
@@ -200,13 +200,16 @@ def kt_db_android_library(
         # A's databinding generated code can depend on B's kotlin code.
         # See: https://blog.bazel.build/2017/06/28/sjd-unused_deps.html
         # Can be also overcome by --strict_java_deps=warn
-        exports = kotlin_targets + [databinding_mapper],
+        exports = kotlin_targets + exports + [databinding_mapper],
     )
 
-    # Package aar correctly for Gradle builds.
-    # Disabled for now.
-    # databinding_aar(
-    #     name = name + "-databinding",
-    #     android_library = name,
-    #     kotlin_jar = kotlin_target + "_kt.jar",
-    # )
+    # Package aar correctly for distribution
+    databinding_aar(
+        name = name + "-databinding",
+        android_library = name,
+        kotlin_library = kotlin_target,
+        # These exist only to satisfy the maven_publish aspect requirements for aggregating transitive deps
+        deps = kotlin_targets + _filter_deps(deps) + _DATABINDING_DEPS + [databinding_mapper],
+        exports = kotlin_targets + exports,
+        tags = tags,
+    )
