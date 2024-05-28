@@ -1,5 +1,6 @@
 # Disk cache
 build --disk_cache=bazel-cache
+common --enable_bzlmod
 
 build --verbose_failures
 build --define=android_incremental_dexing_tool=d8_dexbuilder
