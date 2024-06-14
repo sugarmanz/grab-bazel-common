@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 kt_jvm_library(
     name = "test-suite",
@@ -9,7 +9,7 @@ kt_jvm_library(
         "//visibility:public",
     ],
     deps = [
-        "@bazel_common_maven//:com_google_guava_guava",
-        "@bazel_common_maven//:junit_junit",
+        "@maven//:com_google_guava_guava",
+        "@maven//:junit_junit",
     ],
 )

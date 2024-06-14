@@ -1,9 +1,10 @@
 load(
-    "@io_bazel_rules_kotlin//kotlin:jvm.bzl",
+    "@rules_kotlin//kotlin:jvm.bzl",
     _kt_jvm_library = "kt_jvm_library",
 )
+load("@rules_android//android:rules.bzl", "android_library")
 
-_ANDROID_SDK_JAR = "@io_bazel_rules_kotlin//third_party:android_sdk"
+_ANDROID_SDK_JAR = "@rules_kotlin//third_party:android_sdk"
 
 def _kt_android_artifact(
         name,
@@ -31,7 +32,7 @@ def _kt_android_artifact(
 
     # TODO(bazelbuild/rules_kotlin/issues/556): replace with starlark
     # buildifier: disable=native-android
-    native.android_library(
+    android_library(
         name = base_name,
         visibility = ["//visibility:private"],
         exports = base_deps,
@@ -70,7 +71,7 @@ def kt_android_library(name, exports = [], visibility = None, exec_properties = 
 
     # TODO(bazelbuild/rules_kotlin/issues/556): replace with starlark
     # buildifier: disable=native-android
-    native.android_library(
+    android_library(
         name = name,
         exports = exports + _kt_android_artifact(name, exec_properties = exec_properties, **kwargs),
         visibility = visibility,

@@ -1,4 +1,5 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_android//android:rules.bzl", "android_library")
 load(":databinding_stubs.bzl", "databinding_stubs")
 load(":databinding_aar.bzl", "databinding_aar")
 
@@ -180,7 +181,7 @@ def kt_db_android_library(
     # * Kotlin/Java classes are already available via deps. So resources processing is safe.
     # * Kotlin @BindingAdapters are converted to Java via our annotation processor
     # * Our stub classes will be replaced by android_library's actual generated code.
-    native.android_library(
+    android_library(
         name = name,
         srcs = binding_adapter_sources,
         custom_package = custom_package,

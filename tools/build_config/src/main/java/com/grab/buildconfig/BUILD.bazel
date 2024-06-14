@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 kt_jvm_library(
     name = "buildconfig",
@@ -10,7 +10,7 @@ kt_jvm_library(
     ],
     deps = [
         "//tools/worker:worker_lib",
-        "@bazel_common_maven//:com_github_ajalt_clikt",
-        "@bazel_common_maven//:com_squareup_javapoet",
+        "@maven//:com_github_ajalt_clikt",
+        "@maven//:com_squareup_javapoet",
     ],
 )

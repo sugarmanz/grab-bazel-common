@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("@grab_bazel_common//tools/test:test.bzl", "grab_kt_jvm_test")
 
 kt_jvm_library(
@@ -8,10 +8,10 @@ kt_jvm_library(
     ]),
     deps = [
         "//third_party/auto-service",
-        "@bazel_common_maven//:com_google_auto_auto_common",
-        "@bazel_common_maven//:com_google_auto_service_auto_service",
-        "@bazel_common_maven//:com_google_guava_guava",
-        "@bazel_common_maven//:com_squareup_javapoet",
+        "@maven//:com_google_auto_auto_common",
+        "@maven//:com_google_auto_service_auto_service",
+        "@maven//:com_google_guava_guava",
+        "@maven//:com_squareup_javapoet",
         "@maven//:androidx_databinding_databinding_adapters",
     ],
 )
@@ -22,7 +22,7 @@ java_plugin(
     processor_class = "com.grab.pax.binding.processor.BindingAdapterProcessor",
     deps = [
         ":binding-adapter-processor",
-        "@bazel_common_maven//:com_google_auto_service_auto_service",
+        "@maven//:com_google_auto_service_auto_service",
         "@maven//:androidx_databinding_databinding_adapters",
     ],
 )
@@ -44,8 +44,8 @@ grab_kt_jvm_test(
     deps = [
         ":binding-adapter-bridge",
         ":binding-adapter-processor",
-        "@bazel_common_maven//:com_github_tschuchortdev_kotlin_compile_testing",
-        "@bazel_common_maven//:junit_junit",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
+        "@maven//:com_github_tschuchortdev_kotlin_compile_testing",
+        "@maven//:junit_junit",
+        "@rules_kotlin//kotlin/compiler:kotlin-test",
     ],
 )

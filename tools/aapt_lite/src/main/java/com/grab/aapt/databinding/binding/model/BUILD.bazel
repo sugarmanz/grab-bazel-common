@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 kt_jvm_library(
     name = "model",
@@ -11,6 +11,6 @@ kt_jvm_library(
     deps = [
         "//:dagger",
         "//tools/aapt_lite/src/main/java/com/grab/aapt/databinding/util",
-        "@bazel_common_maven//:com_squareup_javapoet",
+        "@maven//:com_squareup_javapoet",
     ],
 )

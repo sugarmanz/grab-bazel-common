@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 kt_jvm_library(
     name = "util",
@@ -10,8 +10,8 @@ kt_jvm_library(
     ],
     deps = [
         "//:dagger",
-        "@bazel_common_maven//:com_squareup_javapoet",
-        "@bazel_common_maven//:net_sf_kxml_kxml2",
-        "@bazel_common_maven//:xmlpull_xmlpull",
+        "@maven//:com_squareup_javapoet",
+        "@maven//:net_sf_kxml_kxml2",
+        "@maven//:xmlpull_xmlpull",
     ],
 )

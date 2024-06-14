@@ -3,29 +3,43 @@ load(
     "register_common_toolchains",
     _buildifier_version = "buildifier_version",
 )
+
+# Internal
 load("@grab_bazel_common//:workspace_defs.bzl", "GRAB_BAZEL_COMMON_ARTIFACTS")
 load("@grab_bazel_common//tools/buildifier:defs.bzl", "BUILDIFIER_DEFAULT_VERSION")
 load("@grab_bazel_common//android/tools:defs.bzl", "android_tools")
+
+# Dagger
 load("@bazel_common_dagger//:workspace_defs.bzl", "DAGGER_ARTIFACTS", "DAGGER_REPOSITORIES")
+
+# Rules Jvm External
 load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+# Kotlin
 load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "kotlinc_version")
+
+# Proto
 # load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
 # Setup android databinding compilation and optionally use patched android tools jar
 def _android(patched_android_tools):
+#    native.bind(
+#        name = "databinding_annotation_processor",
+#        actual = "@grab_bazel_common//tools/android:compiler_annotation_processor",
+#    )
     if patched_android_tools:
         android_tools()
 
 def _kotlin():
     kotlin_repositories(
         compiler_release = kotlinc_version(
-            release = "1.7.21",
-            sha256 = "8412b31b808755f0c0d336dbb8c8443fa239bf32ddb3cdb81b305b25f0ad279e",
+            release = "1.8.10",
+            sha256 = "4c3fa7bc1bb9ef3058a2319d8bcc3b7196079f88e92fdcd8d304a46f4b6b5787",
         ),
     )
     native.register_toolchains("//:kotlin_toolchain")
 
-def bazel_common_initialize(
+def bazel_common_setup(
         patched_android_tools = True,
         buildifier_version = BUILDIFIER_DEFAULT_VERSION,
         pinned_maven_install = True):
@@ -44,6 +58,9 @@ def bazel_common_initialize(
     maven_install(
         name = repo_name,
         artifacts = DAGGER_ARTIFACTS + [
+            "com.android.tools.lint:lint:31.5.0-alpha02",
+            "com.android.tools.lint:lint-checks:31.5.0-alpha02",
+            "com.android.tools.lint:lint-api:31.5.0-alpha02",
             "com.google.guava:guava:29.0-jre",
             "com.google.auto:auto-common:0.10",
             "com.google.auto.service:auto-service:1.0-rc6",
@@ -59,8 +76,9 @@ def bazel_common_initialize(
             "xmlpull:xmlpull:1.1.3.1",
             "net.sf.kxml:kxml2:2.3.0",
             "com.squareup.moshi:moshi:1.11.0",
-            "org.jetbrains.kotlin:kotlin-parcelize-compiler:1.7.21",
-            "org.jetbrains.kotlin:kotlin-parcelize-runtime:1.7.21",
+            "org.jetbrains.kotlin:kotlin-stdlib:1.8.10",
+            "org.jetbrains.kotlin:kotlin-parcelize-compiler:1.8.10",
+            "org.jetbrains.kotlin:kotlin-parcelize-runtime:1.8.10",
             "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4",
             "com.github.tschuchortdev:kotlin-compile-testing:1.5.0",
             "com.google.android.material:material:1.2.1",
@@ -75,6 +93,7 @@ def bazel_common_initialize(
         ],
         strict_visibility = True,
         maven_install_json = maven_install_json,
+        fetch_sources = True,
     )
 
     _android(patched_android_tools)

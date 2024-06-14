@@ -2,6 +2,7 @@ load("@grab_bazel_common//tools/build_config:build_config.bzl", _build_config = 
 load("@grab_bazel_common//tools/res_value:res_value.bzl", "res_value")
 load("@grab_bazel_common//tools/kotlin:android.bzl", "kt_android_library")
 load("@grab_bazel_common//rules/android/databinding:databinding.bzl", "kt_db_android_library")
+load("@rules_android//android:rules.bzl", "android_binary", _android_library = "android_library")
 load(":resources.bzl", "build_resources")
 
 """Enhanced android_library rule with support for build configs, res values, Kotlin compilation and databinding support"""
@@ -50,12 +51,12 @@ def android_library(
     # Android with Kotlin -> kt_android_library
     # Android with resources alone -> native.android_library
 
-    rule_type = native.android_library
+    rule_type = _android_library
 
     if enable_data_binding:
         rule_type = kt_db_android_library
     elif len(srcs) == 0 and len(resource_files) != 0:
-        rules_type = android_library
+        rules_type = _android_library
     elif len(srcs) != 0:
         rule_type = kt_android_library
 

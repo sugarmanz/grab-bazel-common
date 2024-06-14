@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("@grab_bazel_common//tools/test:test.bzl", "grab_kt_jvm_test")
 
 kt_jvm_library(
@@ -12,11 +12,11 @@ kt_jvm_library(
     ],
     deps = [
         "//tools/worker/src/main/proto:worker_protocol",
-        "@bazel_common_maven//:com_google_protobuf_protobuf_java",
-        "@bazel_common_maven//:com_google_protobuf_protobuf_java_util",
-        "@bazel_common_maven//:com_squareup_moshi_moshi_kotlin",
-        "@bazel_common_maven//:com_squareup_okio_okio_jvm",
-        "@bazel_common_maven//:io_reactivex_rxjava3_rxjava",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:com_google_protobuf_protobuf_java_util",
+        "@maven//:com_squareup_moshi_moshi_kotlin",
+        "@maven//:com_squareup_okio_okio_jvm",
+        "@maven//:io_reactivex_rxjava3_rxjava",
     ],
 )
 
@@ -27,7 +27,7 @@ grab_kt_jvm_test(
     ]),
     deps = [
         ":worker_lib",
-        "@bazel_common_maven//:junit_junit",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
+        "@maven//:junit_junit",
+        "@rules_kotlin//kotlin/compiler:kotlin-test",
     ],
 )

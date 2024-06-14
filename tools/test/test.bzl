@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_test")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_test")
 load(":runtime_resources.bzl", "runtime_resources")
 
 _DEFAULT_SRC_SETS = ["src/test/java", "src/test/kotlin"]
@@ -53,7 +53,7 @@ def grab_android_local_test(
         test_runtime_deps = [
             ":" + runtime_resources_name,
             "@grab_bazel_common//tools/test:mockable-android-jar",
-            "@com_github_jetbrains_kotlin//:kotlin-reflect",
+            "@rules_kotlin//kotlin/compiler:kotlin-reflect",
         ],
         resources = resources,
         **kwargs
@@ -89,7 +89,7 @@ def grab_kt_jvm_test(
         deps = deps,
         test_compile_deps = [],
         test_runtime_deps = [
-            "@com_github_jetbrains_kotlin//:kotlin-reflect",
+            "@rules_kotlin//kotlin/compiler:kotlin-reflect",
         ],
         **kwargs
     )
