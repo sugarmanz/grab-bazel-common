@@ -46,12 +46,6 @@ def bazel_common_setup(
     #rules_proto_dependencies()
     #rules_proto_toolchains()
 
-    register_common_toolchains(
-        buildifier = _buildifier_version(
-            version = buildifier_version,
-        ),
-    )
-
     repo_name = "bazel_common_maven"
     maven_install_json = "@grab_bazel_common//:%s_install.json" % repo_name if pinned_maven_install else None
 

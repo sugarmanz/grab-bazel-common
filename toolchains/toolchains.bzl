@@ -37,9 +37,9 @@ def configure_toolchains():
         values = {"define": "nontransitive_r_class=1"},
     )
 
-    buildifier_binary(
-        name = "buildifier",
-    )
+#    buildifier_binary(
+#        name = "buildifier",
+#    )
 
 def register_common_toolchains(
         buildifier = BUILDIFIER_DEFAULT_TOOLCHAINS):

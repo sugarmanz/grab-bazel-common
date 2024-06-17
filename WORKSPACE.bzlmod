@@ -13,6 +13,11 @@ android_sdk_repository(
     name = "androidsdk",
 )
 
+bind(
+    name = "databinding_annotation_processor",
+    actual = "//tools/android:compiler_annotation_processor",
+)
+
 load("@grab_bazel_common//rules:setup.bzl", "bazel_common_setup")
 
 bazel_common_setup(
