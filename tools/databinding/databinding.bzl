@@ -112,10 +112,18 @@ def kt_db_android_library(
         # Additionally, run our custom annotation processor "binding-adapter-bridge" that would generate
         # .java files for Kotlin @BindingAdapter.
 
+        empty_src = "empty_kt"
+        native.genrule(
+            name = empty_src,
+            outs = ["empty.kt"],
+            cmd = "touch $(OUTS)",
+        )
+
         binding_classes = name + "-stubs-kotlin"
         kt_jvm_library(
             name = binding_classes,
-            srcs = [binding_classes_sources],
+            # Pass one source file to prevent buggy kotlin rule from processing jdeps when disabled
+            srcs = [binding_classes_sources, empty_src],
             deps = _DATABINDING_DEPS + [
                 "@grab_bazel_common//tools/binding-adapter-bridge:binding-adapter-bridge",
                 "@grab_bazel_common//tools/android:android_sdk",
